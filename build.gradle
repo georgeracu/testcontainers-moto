@@ -1,11 +1,5 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.36.0'
-    }
+plugins {
+    id 'com.vanniktech.maven.publish' version '0.36.0' apply false
 }
 
 subprojects {
@@ -28,9 +22,6 @@ subprojects {
     }
 
     mavenPublishing {
-        def javadocJar = Class.forName('com.vanniktech.maven.publish.JavadocJar$Javadoc').getDeclaredConstructor().newInstance()
-        def platform = new com.vanniktech.maven.publish.JavaLibrary(javadocJar, true)
-        configure(platform)
         publishToMavenCentral()
         signAllPublications()
     }
