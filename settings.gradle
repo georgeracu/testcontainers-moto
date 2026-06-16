@@ -1,0 +1,4 @@
+rootProject.name = 'testcontainers-moto-parent'
+
+include ':testcontainers-moto'
+include ':spring-boot-testcontainers-moto'

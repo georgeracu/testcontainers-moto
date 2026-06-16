@@ -1,0 +1,37 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.36.0'
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'com.vanniktech.maven.publish'
+
+    group = providers.gradleProperty('GROUP').get()
+    version = providers.gradleProperty('VERSION_NAME').get()
+
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 17
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+
+    mavenPublishing {
+        def javadocJar = Class.forName('com.vanniktech.maven.publish.JavadocJar$Javadoc').getDeclaredConstructor().newInstance()
+        def platform = new com.vanniktech.maven.publish.JavaLibrary(javadocJar, true)
+        configure(platform)
+        publishToMavenCentral()
+        signAllPublications()
+    }
+}

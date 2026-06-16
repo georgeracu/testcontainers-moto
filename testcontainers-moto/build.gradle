@@ -1,0 +1,4 @@
+dependencies {
+    api platform("org.testcontainers:testcontainers-bom:${providers.gradleProperty('testcontainersVersion').get()}")
+    api 'org.testcontainers:testcontainers'
+}
