@@ -1,3 +1,21 @@
 dependencies {
     api project(':testcontainers-moto')
+    api platform("org.springframework.boot:spring-boot-dependencies:${providers.gradleProperty('springBootVersion').get()}")
+    api 'org.springframework.boot:spring-boot-testcontainers'
+
+    compileOnly platform("io.awspring.cloud:spring-cloud-aws-dependencies:${providers.gradleProperty('springCloudAwsVersion').get()}")
+    compileOnly 'io.awspring.cloud:spring-cloud-aws-autoconfigure'
+    compileOnly platform("software.amazon.awssdk:bom:${providers.gradleProperty('awsSdkVersion').get()}")
+    compileOnly 'software.amazon.awssdk:s3'
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${providers.gradleProperty('junitVersion').get()}"
+    testImplementation "org.assertj:assertj-core:${providers.gradleProperty('assertjVersion').get()}"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+
+    testImplementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${providers.gradleProperty('springCloudAwsVersion').get()}")
+    testImplementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+    testImplementation platform("software.amazon.awssdk:bom:${providers.gradleProperty('awsSdkVersion').get()}")
 }
