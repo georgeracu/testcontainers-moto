@@ -1,4 +1,4 @@
-package com.georgeracu.testcontainers.moto.spring;
+package io.github.georgeracu.testcontainers.moto.spring;
 
 import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails;
 import io.awspring.cloud.autoconfigure.s3.S3AutoConfiguration;
@@ -20,6 +20,10 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 @ConditionalOnBean(AwsConnectionDetails.class)
 @AutoConfigureAfter(S3AutoConfiguration.class)
 public class MotoAwsAutoConfiguration {
+
+    /** Constructed by Spring Boot's auto-configuration machinery. */
+    public MotoAwsAutoConfiguration() {
+    }
 
     @Bean
     S3ClientCustomizer motoS3PathStyleCustomizer() {

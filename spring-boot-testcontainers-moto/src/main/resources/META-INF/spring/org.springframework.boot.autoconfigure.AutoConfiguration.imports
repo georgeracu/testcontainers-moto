@@ -1,1 +1,1 @@
-com.georgeracu.testcontainers.moto.spring.MotoAwsAutoConfiguration
+io.github.georgeracu.testcontainers.moto.spring.MotoAwsAutoConfiguration

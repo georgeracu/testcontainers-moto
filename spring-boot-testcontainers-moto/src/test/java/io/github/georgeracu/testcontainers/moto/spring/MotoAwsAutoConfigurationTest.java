@@ -1,6 +1,6 @@
-package com.georgeracu.testcontainers.moto.spring;
+package io.github.georgeracu.testcontainers.moto.spring;
 
-import com.georgeracu.testcontainers.moto.MotoContainer;
+import io.github.georgeracu.testcontainers.moto.MotoContainer;
 import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.georgeracu.testcontainers.moto;
+package io.github.georgeracu.testcontainers.moto;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -21,10 +21,12 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
     private static final DockerImageName DEFAULT_IMAGE = DockerImageName.parse("motoserver/moto");
     private static final int MOTO_PORT = 5000;
 
+    /** Creates a Moto container from a Docker image reference, e.g. {@code "motoserver/moto:5.1.22"}. */
     public MotoContainer(String dockerImageName) {
         this(DockerImageName.parse(dockerImageName));
     }
 
+    /** Creates a Moto container from a {@link DockerImageName}, which must be compatible with {@code motoserver/moto}. */
     public MotoContainer(DockerImageName dockerImageName) {
         super(dockerImageName);
         dockerImageName.assertCompatibleWith(DEFAULT_IMAGE);
@@ -32,18 +34,22 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
         waitingFor(Wait.forHttp("/moto-api/").forStatusCode(200));
     }
 
+    /** The base endpoint every AWS service client should be pointed at. */
     public URI getEndpoint() {
         return URI.create("http://" + getHost() + ":" + getMappedPort(MOTO_PORT));
     }
 
+    /** Fixed dummy access key Moto accepts for any request. */
     public String getAccessKey() {
         return "test";
     }
 
+    /** Fixed dummy secret key Moto accepts for any request. */
     public String getSecretKey() {
         return "test";
     }
 
+    /** Default AWS region Moto assumes when none is otherwise configured. */
     public String getRegion() {
         return "us-east-1";
     }
@@ -56,7 +62,11 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
                 .build());
     }
 
-    /** Seeds Moto's RNG so generated resource IDs are deterministic. {@code GET /moto-api/seed?a=n}. */
+    /**
+     * Seeds Moto's RNG so generated resource IDs are deterministic. {@code GET /moto-api/seed?a=n}.
+     *
+     * @param n the seed value
+     */
     public void seed(int n) {
         send(HttpRequest.newBuilder()
                 .uri(getEndpoint().resolve("/moto-api/seed?a=" + n))

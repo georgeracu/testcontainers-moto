@@ -1,6 +1,6 @@
-package com.georgeracu.testcontainers.moto.spring;
+package io.github.georgeracu.testcontainers.moto.spring;
 
-import com.georgeracu.testcontainers.moto.MotoContainer;
+import io.github.georgeracu.testcontainers.moto.MotoContainer;
 import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails;
 import java.net.URI;
 import org.springframework.boot.testcontainers.service.connection.ContainerConnectionDetailsFactory;
@@ -12,6 +12,10 @@ import org.springframework.boot.testcontainers.service.connection.ContainerConne
  */
 public class MotoContainerConnectionDetailsFactory
         extends ContainerConnectionDetailsFactory<MotoContainer, AwsConnectionDetails> {
+
+    /** Constructed by Spring Boot's service-connection machinery. */
+    public MotoContainerConnectionDetailsFactory() {
+    }
 
     @Override
     protected AwsConnectionDetails getContainerConnectionDetails(

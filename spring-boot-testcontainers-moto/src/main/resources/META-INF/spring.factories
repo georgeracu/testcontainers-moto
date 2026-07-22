@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.service.connection.ConnectionDetailsFactory=\
-  com.georgeracu.testcontainers.moto.spring.MotoContainerConnectionDetailsFactory
+  io.github.georgeracu.testcontainers.moto.spring.MotoContainerConnectionDetailsFactory

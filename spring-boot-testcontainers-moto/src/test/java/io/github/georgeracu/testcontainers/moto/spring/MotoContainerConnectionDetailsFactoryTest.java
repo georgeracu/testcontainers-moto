@@ -1,4 +1,4 @@
-package com.georgeracu.testcontainers.moto.spring;
+package io.github.georgeracu.testcontainers.moto.spring;
 
 import org.junit.jupiter.api.Test;
 

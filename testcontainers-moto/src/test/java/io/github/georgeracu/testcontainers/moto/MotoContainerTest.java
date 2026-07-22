@@ -1,4 +1,4 @@
-package com.georgeracu.testcontainers.moto;
+package io.github.georgeracu.testcontainers.moto;
 
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
