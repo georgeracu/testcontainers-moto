@@ -2,31 +2,89 @@
 
 [![CI](https://github.com/georgeracu/testcontainers-moto/actions/workflows/ci.yml/badge.svg)](https://github.com/georgeracu/testcontainers-moto/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.georgeracu/testcontainers-moto)](https://central.sonatype.com/artifact/io.github.georgeracu/testcontainers-moto)
+[![License](https://img.shields.io/github/license/georgeracu/testcontainers-moto)](LICENSE)
 
-Testcontainers module for [Moto](https://github.com/getmoto/moto), a mock AWS server. Moto
-serves every AWS service on a single port with no per-service opt-in, so `MotoContainer`
-gives you one endpoint that any AWS SDK client can be pointed at.
+A [Testcontainers](https://testcontainers.com/) module for [Moto](https://github.com/getmoto/moto),
+a mock AWS server. Moto serves every AWS service on a single port with no per-service
+opt-in, so `MotoContainer` gives you one container and one endpoint that any AWS SDK client
+can be pointed at — no AWS account, no network calls, no cost.
 
 Two artifacts are published:
 
-- **`testcontainers-moto`** — the container definition, usable in any JVM test.
-- **`spring-boot-testcontainers-moto`** — adds `@ServiceConnection` support so a
-  `MotoContainer` in a `@SpringBootTest` auto-configures every Spring Cloud AWS client,
-  no manual endpoint or credentials wiring required.
+| Artifact | What it gives you |
+|---|---|
+| [`testcontainers-moto`](#testcontainers-moto-1) | The container definition. Works in any JVM test, JUnit 5 or 4. |
+| [`spring-boot-testcontainers-moto`](#spring-boot-testcontainers-moto) | `@ServiceConnection` support: a `MotoContainer` in a `@SpringBootTest` auto-configures every Spring Cloud AWS client with no manual wiring. |
+
+## Table of contents
+
+- [Requirements](#requirements)
+- [Quick start](#quick-start)
+- [Installation](#installation)
+- [`testcontainers-moto`](#testcontainers-moto-1)
+  - [Basic usage](#basic-usage)
+  - [Resetting state between tests](#resetting-state-between-tests)
+  - [Deterministic IDs with `seed`](#deterministic-ids-with-seed)
+  - [Sharing one container across a test class](#sharing-one-container-across-a-test-class)
+  - [Pinning an image tag](#pinning-an-image-tag)
+- [`spring-boot-testcontainers-moto`](#spring-boot-testcontainers-moto)
+  - [Basic usage](#basic-usage-1)
+  - [What gets auto-configured](#what-gets-auto-configured)
+  - [Which AWS services are supported](#which-aws-services-are-supported)
+- [Troubleshooting / FAQ](#troubleshooting--faq)
+- [Compatibility matrix](#compatibility-matrix)
+- [Building locally](#building-locally)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Requirements
 
 - Java 17+
-- Docker (or a Docker-API-compatible runtime such as Colima)
+- Docker (or a Docker-API-compatible runtime such as Colima or Rancher Desktop)
 
-## `testcontainers-moto`
+## Quick start
 
-### Install
+Add the core module to your test classpath, write a test, run it — no Moto installation,
+no AWS credentials, no account setup:
+
+```groovy
+testImplementation("io.github.georgeracu:testcontainers-moto:0.1.0")
+```
+
+```java
+@Testcontainers
+class QuickStartTest {
+
+    @Container
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+
+    @Test
+    void talksToMoto() {
+        S3Client s3 = S3Client.builder()
+                .endpointOverride(moto.getEndpoint())
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(moto.getAccessKey(), moto.getSecretKey())))
+                .region(Region.of(moto.getRegion()))
+                .forcePathStyle(true)
+                .build();
+
+        s3.createBucket(b -> b.bucket("hello-moto"));
+    }
+}
+```
+
+Testcontainers pulls the image, starts the container, and waits until Moto is ready before
+your test body runs. That's the whole setup.
+
+## Installation
 
 Gradle:
 
 ```groovy
 testImplementation("io.github.georgeracu:testcontainers-moto:0.1.0")
+// and/or, for Spring Boot projects:
+testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.1.0")
 ```
 
 Maven:
@@ -38,9 +96,20 @@ Maven:
     <version>0.1.0</version>
     <scope>test</scope>
 </dependency>
+<!-- and/or, for Spring Boot projects: -->
+<dependency>
+    <groupId>io.github.georgeracu</groupId>
+    <artifactId>spring-boot-testcontainers-moto</artifactId>
+    <version>0.1.0</version>
+    <scope>test</scope>
+</dependency>
 ```
 
-### Usage
+Both artifacts are published to Maven Central — no extra repository declaration needed.
+
+## `testcontainers-moto`
+
+### Basic usage
 
 ```java
 @Testcontainers
@@ -66,38 +135,84 @@ class S3Test {
 }
 ```
 
-`MotoContainer` also exposes two Moto-specific test hooks:
+`MotoContainer` is a plain `GenericContainer`, so it works the same way with a JUnit 4
+`@Rule`/`@ClassRule` if your project hasn't moved to JUnit 5 yet — nothing here is
+JUnit-5-specific beyond the `@Testcontainers`/`@Container` annotations used above.
 
-- `reset()` — clears all backend state without restarting the container. Call this between
-  tests instead of paying for a fresh container per test.
-- `seed(int n)` — seeds Moto's RNG so generated resource IDs (access keys, request IDs, etc.)
-  become deterministic across runs.
+`getEndpoint()` returns the single base URL every AWS SDK client should point
+`endpointOverride(...)` at, regardless of which service you're calling —
+`getAccessKey()`/`getSecretKey()` are fixed dummy credentials Moto accepts unconditionally,
+and `getRegion()` is the default region (`us-east-1`) Moto assumes.
+
+### Resetting state between tests
+
+Starting a fresh container per test is expensive. `reset()` clears all of Moto's backend
+state — buckets, tables, queues, everything — without restarting the container, so one
+container can safely serve a whole test class:
+
+```java
+@Testcontainers
+class S3Test {
+
+    @Container
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+
+    @BeforeEach
+    void resetMoto() {
+        moto.reset();
+    }
+
+    // ...tests each start from a clean Moto state
+}
+```
+
+### Deterministic IDs with `seed`
+
+Moto generates realistic-looking but random resource identifiers (access key IDs, request
+IDs, etc.). `seed(int n)` seeds Moto's RNG so the same sequence of calls produces the same
+IDs every run — useful for snapshot-style assertions or when a test needs to assert on an
+ID value rather than just its shape:
+
+```java
+moto.reset();
+moto.seed(42);
+// subsequent generated IDs are now deterministic for this run
+```
+
+Call `reset()` before `seed(int)` if you need a clean slate — `seed` only affects future ID
+generation, it doesn't clear existing state.
+
+### Sharing one container across a test class
+
+By default, a `static` field annotated `@Container` inside a `@Testcontainers` class is
+started once and reused for every `@Test` method in that class — that's already happening
+in the examples above. To share a single container across *multiple* test classes (further
+cutting startup cost in a large suite), declare it once in a shared base class:
+
+```java
+abstract class MotoTestBase {
+    @Container
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+}
+
+class S3Test extends MotoTestBase { /* ... */ }
+class IamTest extends MotoTestBase { /* ... */ }
+```
+
+Testcontainers starts the container once for the whole JVM and reuses it across every
+subclass; call `moto.reset()` in a `@BeforeEach` if tests from different classes shouldn't
+see each other's state.
+
+### Pinning an image tag
+
+Always pin an explicit Moto image tag (`motoserver/moto:5.1.22`, not `motoserver/moto:latest`)
+so a Moto release upgrade can't silently change behaviour under your tests. Check
+[Moto's Docker Hub tags](https://hub.docker.com/r/motoserver/moto/tags) for available
+versions; this project's own tests are pinned to `5.1.22`.
 
 ## `spring-boot-testcontainers-moto`
 
-### Install
-
-Gradle:
-
-```groovy
-testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.1.0")
-```
-
-Maven:
-
-```xml
-<dependency>
-    <groupId>io.github.georgeracu</groupId>
-    <artifactId>spring-boot-testcontainers-moto</artifactId>
-    <version>0.1.0</version>
-    <scope>test</scope>
-</dependency>
-```
-
-Requires `io.awspring.cloud:spring-cloud-aws-starter-*` (Spring Cloud AWS) on the test
-classpath for the client you want to exercise, e.g. `spring-cloud-aws-starter-s3`.
-
-### Usage
+### Basic usage
 
 ```java
 @SpringBootTest
@@ -120,10 +235,73 @@ class S3IntegrationTest {
 }
 ```
 
-The `@ServiceConnection` annotation makes Spring Boot wire `AwsConnectionDetails` from the
-container automatically, and the module's auto-configuration forces path-style S3 access
-(Moto rejects virtual-hosted-style bucket addressing) — no manual endpoint, credentials, or
-region configuration needed.
+Requires a Spring Cloud AWS starter for whichever client(s) you want auto-configured on the
+test classpath, e.g. `io.awspring.cloud:spring-cloud-aws-starter-s3`.
+
+### What gets auto-configured
+
+`@ServiceConnection` makes Spring Boot construct `AwsConnectionDetails` from the running
+container — endpoint, region, and credentials all come from `MotoContainer` automatically,
+with nothing to configure in `application.yml` or a test `@Configuration` class.
+
+On top of that, this module also registers an `S3ClientCustomizer` that forces path-style
+bucket addressing. Moto (like real AWS for non-standard endpoints) rejects
+virtual-hosted-style addressing (`https://<bucket>.endpoint/...`), so without this the S3
+client would fail to resolve buckets against Moto's endpoint. This customizer only applies
+when an `S3Client`/`S3ClientBuilder` is actually on the classpath.
+
+### Which AWS services are supported
+
+`AwsConnectionDetails` is generic across every Spring Cloud AWS starter — S3, SQS, SNS,
+DynamoDB, SES, and so on all pick up the container's endpoint/region/credentials via
+`@ServiceConnection` the same way. The path-style customizer described above is S3-specific
+plumbing this module adds on top; other services need no equivalent adjustment to work
+against Moto.
+
+## Troubleshooting / FAQ
+
+**Container fails to start / times out waiting for Moto.**
+`MotoContainer` waits on `GET /moto-api/` returning `200` before considering the container
+ready. A timeout here almost always means Docker itself is the problem (daemon not running,
+image pull failing, resource limits) rather than Moto — check `docker ps` and
+`docker logs <container>` first.
+
+**`docker-java`/Testcontainers can't connect to the Docker daemon at all (Colima).**
+Some Colima setups run a Docker Engine whose API version is newer than what `docker-java`
+negotiates by default, causing a version-mismatch failure before the container ever starts.
+Set `DOCKER_API_VERSION` to your daemon's actual API version (check with
+`docker version --format '{{.Server.APIVersion}}'`):
+
+```shell
+DOCKER_API_VERSION=1.44 ./gradlew test
+```
+
+**S3 calls fail with a `NoSuchBucket`/DNS-style error even though the bucket exists.**
+You're not using path-style addressing. If you're using the core `testcontainers-moto`
+module directly, call `.forcePathStyle(true)` on the S3 client builder yourself (see the
+[usage example](#basic-usage) above) — the Spring Boot module does this for you
+automatically.
+
+**Tests are slow because every test class starts its own container.**
+See [Sharing one container across a test class](#sharing-one-container-across-a-test-class).
+
+**Which Moto image tag should I use?**
+Pin an explicit tag rather than `latest` — see [Pinning an image tag](#pinning-an-image-tag).
+
+## Compatibility matrix
+
+Versions this project is built and tested against (see
+[`gradle.properties`](gradle.properties) for the source of truth):
+
+| Dependency | Version |
+|---|---|
+| Java | 17+ |
+| Testcontainers | 1.20.4 |
+| JUnit Jupiter | 5.11.4 |
+| AWS SDK for Java v2 | 2.32.25 |
+| Spring Boot | 3.5.5 |
+| Spring Cloud AWS | 3.4.0 |
+| Moto (tested image tag) | `motoserver/moto:5.1.22` |
 
 ## Building locally
 
@@ -131,13 +309,16 @@ region configuration needed.
 ./gradlew build
 ```
 
-Tests run real containers via Testcontainers, so a working Docker daemon is required. If
-your daemon's API version is older than what `docker-java` expects by default (a known issue
-with some Colima setups), set `DOCKER_API_VERSION` before running:
+Tests run real containers via Testcontainers, so a working Docker daemon is required — see
+[Troubleshooting](#troubleshooting--faq) if `docker-java` can't negotiate a connection.
 
-```shell
-DOCKER_API_VERSION=1.44 ./gradlew build
-```
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
