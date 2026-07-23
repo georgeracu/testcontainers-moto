@@ -41,39 +41,41 @@ class MotoContainerTest {
 
     @Test
     void s3BucketSurvivesRoundTrip() {
-        S3Client s3 = s3();
-        s3.createBucket(CreateBucketRequest.builder().bucket("task1-bucket").build());
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket("task1-bucket").build());
 
-        ListBucketsResponse buckets = s3.listBuckets();
+            ListBucketsResponse buckets = s3.listBuckets();
 
-        assertThat(buckets.buckets()).extracting(b -> b.name()).contains("task1-bucket");
+            assertThat(buckets.buckets()).extracting(b -> b.name()).contains("task1-bucket");
+        }
     }
 
     @Test
     void resetClearsAllState() {
-        S3Client s3 = s3();
-        s3.createBucket(CreateBucketRequest.builder().bucket("task2-reset-bucket").build());
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket("task2-reset-bucket").build());
 
-        moto.reset();
+            moto.reset();
 
-        assertThat(s3.listBuckets().buckets()).isEmpty();
+            assertThat(s3.listBuckets().buckets()).isEmpty();
+        }
     }
 
     @Test
     void seedMakesGeneratedIdsDeterministic() {
-        IamClient iam = iam();
+        try (IamClient iam = iam()) {
+            moto.reset();
+            moto.seed(42);
+            iam.createUser(b -> b.userName("seed-user"));
+            CreateAccessKeyResponse first = iam.createAccessKey(b -> b.userName("seed-user"));
 
-        moto.reset();
-        moto.seed(42);
-        iam.createUser(b -> b.userName("seed-user"));
-        CreateAccessKeyResponse first = iam.createAccessKey(b -> b.userName("seed-user"));
+            moto.reset();
+            moto.seed(42);
+            iam.createUser(b -> b.userName("seed-user"));
+            CreateAccessKeyResponse second = iam.createAccessKey(b -> b.userName("seed-user"));
 
-        moto.reset();
-        moto.seed(42);
-        iam.createUser(b -> b.userName("seed-user"));
-        CreateAccessKeyResponse second = iam.createAccessKey(b -> b.userName("seed-user"));
-
-        assertThat(first.accessKey().accessKeyId())
-                .isEqualTo(second.accessKey().accessKeyId());
+            assertThat(first.accessKey().accessKeyId())
+                    .isEqualTo(second.accessKey().accessKeyId());
+        }
     }
 }

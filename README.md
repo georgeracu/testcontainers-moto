@@ -61,15 +61,15 @@ class QuickStartTest {
 
     @Test
     void talksToMoto() {
-        S3Client s3 = S3Client.builder()
+        try (S3Client s3 = S3Client.builder()
                 .endpointOverride(moto.getEndpoint())
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(moto.getAccessKey(), moto.getSecretKey())))
                 .region(Region.of(moto.getRegion()))
                 .forcePathStyle(true)
-                .build();
-
-        s3.createBucket(b -> b.bucket("hello-moto"));
+                .build()) {
+            s3.createBucket(b -> b.bucket("hello-moto"));
+        }
     }
 }
 ```
@@ -120,17 +120,17 @@ class S3Test {
 
     @Test
     void createsBucket() {
-        S3Client s3 = S3Client.builder()
+        try (S3Client s3 = S3Client.builder()
                 .endpointOverride(moto.getEndpoint())
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(moto.getAccessKey(), moto.getSecretKey())))
                 .region(Region.of(moto.getRegion()))
                 .forcePathStyle(true)
-                .build();
+                .build()) {
+            s3.createBucket(b -> b.bucket("my-bucket"));
 
-        s3.createBucket(b -> b.bucket("my-bucket"));
-
-        assertThat(s3.listBuckets().buckets()).extracting(b -> b.name()).contains("my-bucket");
+            assertThat(s3.listBuckets().buckets()).extracting(b -> b.name()).contains("my-bucket");
+        }
     }
 }
 ```
@@ -186,8 +186,8 @@ generation, it doesn't clear existing state.
 
 By default, a `static` field annotated `@Container` inside a `@Testcontainers` class is
 started once and reused for every `@Test` method in that class — that's already happening
-in the examples above. To share a single container across *multiple* test classes (further
-cutting startup cost in a large suite), declare it once in a shared base class:
+in the examples above. To share the *declaration* across multiple test classes, put it in a
+shared base class:
 
 ```java
 abstract class MotoTestBase {
@@ -199,15 +199,32 @@ class S3Test extends MotoTestBase { /* ... */ }
 class IamTest extends MotoTestBase { /* ... */ }
 ```
 
-Testcontainers starts the container once for the whole JVM and reuses it across every
-subclass; call `moto.reset()` in a `@BeforeEach` if tests from different classes shouldn't
-see each other's state.
+This saves repeating the field, but it does **not** give you one container for the whole
+JVM: the JUnit 5 Testcontainers extension discovers the inherited static field per concrete
+subclass and ties its stop-callback to that subclass's own extension context, so the
+container is stopped when `S3Test` finishes and a fresh one is started for `IamTest`. Each
+subclass still pays full container startup cost.
 
-`reset()` clears the *entire* shared instance, not just state the calling test created, so
-it isn't safe to call under JUnit 5 parallel test execution: a concurrently-running test can
-have its buckets/tables/queues disappear mid-test. If your suite has parallel execution
-enabled elsewhere, either leave it disabled for classes that share a `MotoContainer` or
-serialize them with a `@ResourceLock`/`@Execution(ExecutionMode.SAME_THREAD)`.
+To actually start Moto once for the entire JVM, skip `@Container` and start it yourself,
+relying on Testcontainers' Ryuk reaper to stop it when the JVM exits rather than an
+extension callback:
+
+```java
+abstract class MotoTestBase {
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+
+    static {
+        moto.start();
+    }
+}
+```
+
+Either way, call `moto.reset()` in a `@BeforeEach` if tests sharing the container shouldn't
+see each other's state — `reset()` clears the *entire* shared instance, not just state the
+calling test created, so it isn't safe to call under JUnit 5 parallel test execution: a
+concurrently-running test can have its buckets/tables/queues disappear mid-test. If your
+suite has parallel execution enabled elsewhere, either leave it disabled for classes that
+share a `MotoContainer` or serialize them with a `@ResourceLock`/`@Execution(ExecutionMode.SAME_THREAD)`.
 
 ### Pinning an image tag
 
@@ -312,7 +329,7 @@ Versions this project is built and tested against (see
 | Dependency | Version |
 |---|---|
 | Java | 17+ |
-| Testcontainers | 1.20.4 |
+| Testcontainers | 1.21.3 |
 | JUnit Jupiter | 5.11.4 |
 | AWS SDK for Java v2 | 2.32.25 |
 | Spring Boot | 3.5.5 |
