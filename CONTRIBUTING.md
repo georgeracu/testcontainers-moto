@@ -16,6 +16,11 @@ with some Colima setups), set `DOCKER_API_VERSION` before running:
 DOCKER_API_VERSION=1.44 ./gradlew build
 ```
 
+If Testcontainers' Ryuk resource reaper also fails to start on your setup, you can disable it
+with `TESTCONTAINERS_RYUK_DISABLED=true` — see the README's
+[Troubleshooting / FAQ](README.md#troubleshooting--faq) for the trade-off before reaching for
+this.
+
 CI runs the same `./gradlew build` on every push and pull request against `main` — see
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 

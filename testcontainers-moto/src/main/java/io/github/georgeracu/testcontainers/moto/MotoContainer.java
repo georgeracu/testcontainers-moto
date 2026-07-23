@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
 /**
  * Testcontainers wrapper for the Moto AWS mock server (motoserver/moto).
@@ -20,6 +21,11 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
 
     private static final DockerImageName DEFAULT_IMAGE = DockerImageName.parse("motoserver/moto");
     private static final int MOTO_PORT = 5000;
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(CONNECT_TIMEOUT)
+            .build();
 
     /** Creates a Moto container from a Docker image reference, e.g. {@code "motoserver/moto:5.1.22"}. */
     public MotoContainer(String dockerImageName) {
@@ -54,10 +60,21 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
         return "us-east-1";
     }
 
-    /** Clears all backend state without restarting the container. {@code POST /moto-api/reset}. */
+    /**
+     * Clears all backend state without restarting the container. {@code POST /moto-api/reset}.
+     *
+     * <p>This resets the entire shared Moto instance, not just state created by the calling
+     * test. If a single container is reused across a test class (see the "Sharing one
+     * container across a test class" pattern in the README), calls to {@code reset()} are not
+     * safe under JUnit 5 parallel test execution: a concurrently-running test can observe its
+     * state disappear mid-test. Either leave parallel execution disabled (the JUnit 5 default)
+     * or serialize the tests that share a container, e.g. with a JUnit 5
+     * {@code @ResourceLock} or {@code @Execution(ExecutionMode.SAME_THREAD)}.
+     */
     public void reset() {
         send(HttpRequest.newBuilder()
                 .uri(getEndpoint().resolve("/moto-api/reset"))
+                .timeout(REQUEST_TIMEOUT)
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build());
     }
@@ -70,14 +87,14 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
     public void seed(int n) {
         send(HttpRequest.newBuilder()
                 .uri(getEndpoint().resolve("/moto-api/seed?a=" + n))
+                .timeout(REQUEST_TIMEOUT)
                 .GET()
                 .build());
     }
 
     private void send(HttpRequest request) {
         try {
-            HttpResponse<Void> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.discarding());
+            HttpResponse<Void> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
             if (response.statusCode() != 200) {
                 throw new IllegalStateException(
                         "moto-api call to " + request.uri() + " returned " + response.statusCode());

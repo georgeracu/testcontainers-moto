@@ -23,7 +23,12 @@ public class MotoContainerConnectionDetailsFactory
         return new MotoAwsConnectionDetails(source);
     }
 
-    private static final class MotoAwsConnectionDetails
+    /**
+     * Package-private (not {@code private}) so {@link MotoAwsAutoConfiguration} can condition
+     * on this concrete type instead of on {@link AwsConnectionDetails} in general, which would
+     * also match a LocalStack or real-AWS connection details bean.
+     */
+    static final class MotoAwsConnectionDetails
             extends ContainerConnectionDetails<MotoContainer> implements AwsConnectionDetails {
 
         private MotoAwsConnectionDetails(ContainerConnectionSource<MotoContainer> source) {

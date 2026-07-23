@@ -12,12 +12,16 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
 /**
  * Enables path-style S3 access when a {@link MotoContainerConnectionDetailsFactory}
- * has produced {@link AwsConnectionDetails}, since Moto rejects virtual-hosted-style
- * bucket addressing.
+ * has produced a {@link MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails},
+ * since Moto rejects virtual-hosted-style bucket addressing.
+ *
+ * <p>Conditioned on that concrete type rather than the generic {@link AwsConnectionDetails}
+ * interface, so this doesn't also activate for a LocalStack or real-AWS connection details
+ * bean on the same classpath.
  */
 @AutoConfiguration
 @ConditionalOnClass({ S3ClientCustomizer.class, S3ClientBuilder.class })
-@ConditionalOnBean(AwsConnectionDetails.class)
+@ConditionalOnBean(MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails.class)
 @AutoConfigureAfter(S3AutoConfiguration.class)
 public class MotoAwsAutoConfiguration {
 

@@ -203,6 +203,12 @@ Testcontainers starts the container once for the whole JVM and reuses it across 
 subclass; call `moto.reset()` in a `@BeforeEach` if tests from different classes shouldn't
 see each other's state.
 
+`reset()` clears the *entire* shared instance, not just state the calling test created, so
+it isn't safe to call under JUnit 5 parallel test execution: a concurrently-running test can
+have its buckets/tables/queues disappear mid-test. If your suite has parallel execution
+enabled elsewhere, either leave it disabled for classes that share a `MotoContainer` or
+serialize them with a `@ResourceLock`/`@Execution(ExecutionMode.SAME_THREAD)`.
+
 ### Pinning an image tag
 
 Always pin an explicit Moto image tag (`motoserver/moto:5.1.22`, not `motoserver/moto:latest`)
@@ -274,6 +280,16 @@ Set `DOCKER_API_VERSION` to your daemon's actual API version (check with
 
 ```shell
 DOCKER_API_VERSION=1.44 ./gradlew test
+```
+
+**Tests hang because Testcontainers' Ryuk resource reaper can't start (also seen on some
+Colima setups).** Ryuk is what cleans up containers after a run; disabling it is a
+last-resort workaround, not a default, since it means aborted runs can leave containers
+behind for you to clean up manually (`docker ps` / `docker rm`). Only set this if you've
+actually hit the failure:
+
+```shell
+DOCKER_API_VERSION=1.44 TESTCONTAINERS_RYUK_DISABLED=true ./gradlew test
 ```
 
 **S3 calls fail with a `NoSuchBucket`/DNS-style error even though the bucket exists.**
