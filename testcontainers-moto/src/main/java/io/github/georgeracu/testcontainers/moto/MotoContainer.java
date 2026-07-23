@@ -1,0 +1,109 @@
+package io.github.georgeracu.testcontainers.moto;
+
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+/**
+ * Testcontainers wrapper for the Moto AWS mock server (motoserver/moto).
+ *
+ * <p>Moto serves every AWS service on a single port (5000) with no service
+ * opt-in, so this container exposes one {@link #getEndpoint()} for all services.
+ */
+public class MotoContainer extends GenericContainer<MotoContainer> {
+
+    private static final DockerImageName DEFAULT_IMAGE = DockerImageName.parse("motoserver/moto");
+    private static final int MOTO_PORT = 5000;
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(CONNECT_TIMEOUT)
+            .build();
+
+    /** Creates a Moto container from a Docker image reference, e.g. {@code "motoserver/moto:5.1.22"}. */
+    public MotoContainer(String dockerImageName) {
+        this(DockerImageName.parse(dockerImageName));
+    }
+
+    /** Creates a Moto container from a {@link DockerImageName}, which must be compatible with {@code motoserver/moto}. */
+    public MotoContainer(DockerImageName dockerImageName) {
+        super(dockerImageName);
+        dockerImageName.assertCompatibleWith(DEFAULT_IMAGE);
+        withExposedPorts(MOTO_PORT);
+        waitingFor(Wait.forHttp("/moto-api/").forStatusCode(200));
+    }
+
+    /** The base endpoint every AWS service client should be pointed at. */
+    public URI getEndpoint() {
+        return URI.create("http://" + getHost() + ":" + getMappedPort(MOTO_PORT));
+    }
+
+    /** Fixed dummy access key Moto accepts for any request. */
+    public String getAccessKey() {
+        return "test";
+    }
+
+    /** Fixed dummy secret key Moto accepts for any request. */
+    public String getSecretKey() {
+        return "test";
+    }
+
+    /** Default AWS region Moto assumes when none is otherwise configured. */
+    public String getRegion() {
+        return "us-east-1";
+    }
+
+    /**
+     * Clears all backend state without restarting the container. {@code POST /moto-api/reset}.
+     *
+     * <p>This resets the entire shared Moto instance, not just state created by the calling
+     * test. If a single container is reused across a test class (see the "Sharing one
+     * container across a test class" pattern in the README), calls to {@code reset()} are not
+     * safe under JUnit 5 parallel test execution: a concurrently-running test can observe its
+     * state disappear mid-test. Either leave parallel execution disabled (the JUnit 5 default)
+     * or serialize the tests that share a container, e.g. with a JUnit 5
+     * {@code @ResourceLock} or {@code @Execution(ExecutionMode.SAME_THREAD)}.
+     */
+    public void reset() {
+        send(HttpRequest.newBuilder()
+                .uri(getEndpoint().resolve("/moto-api/reset"))
+                .timeout(REQUEST_TIMEOUT)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build());
+    }
+
+    /**
+     * Seeds Moto's RNG so generated resource IDs are deterministic. {@code GET /moto-api/seed?a=n}.
+     *
+     * @param n the seed value
+     */
+    public void seed(int n) {
+        send(HttpRequest.newBuilder()
+                .uri(getEndpoint().resolve("/moto-api/seed?a=" + n))
+                .timeout(REQUEST_TIMEOUT)
+                .GET()
+                .build());
+    }
+
+    private void send(HttpRequest request) {
+        try {
+            HttpResponse<Void> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException(
+                        "moto-api call to " + request.uri() + " returned " + response.statusCode());
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("moto-api call to " + request.uri() + " failed", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("moto-api call to " + request.uri() + " was interrupted", e);
+        }
+    }
+}

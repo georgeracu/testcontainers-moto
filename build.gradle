@@ -1,0 +1,36 @@
+plugins {
+    id 'com.vanniktech.maven.publish' version '0.36.0' apply false
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'com.vanniktech.maven.publish'
+
+    group = providers.gradleProperty('GROUP').get()
+    version = providers.gradleProperty('VERSION_NAME').get()
+
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 17
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+
+        ['DOCKER_HOST', 'DOCKER_API_VERSION', 'TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE', 'TESTCONTAINERS_RYUK_DISABLED'].each { var ->
+            if (System.getenv(var)) { environment var, System.getenv(var) }
+        }
+        if (System.getenv('DOCKER_API_VERSION')) {
+            systemProperty 'api.version', System.getenv('DOCKER_API_VERSION')
+        }
+        systemProperty 'http.nonProxyHosts', 'localhost|127.0.0.1|host.docker.internal'
+    }
+
+    mavenPublishing {
+        publishToMavenCentral()
+        signAllPublications()
+    }
+}
