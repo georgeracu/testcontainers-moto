@@ -1,6 +1,7 @@
 # testcontainers-moto
 
 [![CI](https://github.com/georgeracu/testcontainers-moto/actions/workflows/ci.yml/badge.svg)](https://github.com/georgeracu/testcontainers-moto/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/georgeracu/testcontainers-moto/graph/badge.svg)](https://codecov.io/gh/georgeracu/testcontainers-moto)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.georgeracu/testcontainers-moto)](https://central.sonatype.com/artifact/io.github.georgeracu/testcontainers-moto)
 [![License](https://img.shields.io/github/license/georgeracu/testcontainers-moto)](LICENSE)
 

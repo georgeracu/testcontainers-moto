@@ -4,6 +4,7 @@ plugins {
 
 subprojects {
     apply plugin: 'java-library'
+    apply plugin: 'jacoco'
     apply plugin: 'com.vanniktech.maven.publish'
 
     group = providers.gradleProperty('GROUP').get()
@@ -27,6 +28,16 @@ subprojects {
             systemProperty 'api.version', System.getenv('DOCKER_API_VERSION')
         }
         systemProperty 'http.nonProxyHosts', 'localhost|127.0.0.1|host.docker.internal'
+
+        finalizedBy tasks.named('jacocoTestReport')
+    }
+
+    tasks.named('jacocoTestReport') {
+        mustRunAfter tasks.named('test')
+        reports {
+            xml.required = true
+            html.required = false
+        }
     }
 
     mavenPublishing {
