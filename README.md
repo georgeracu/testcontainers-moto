@@ -268,17 +268,19 @@ test classpath, e.g. `io.awspring.cloud:spring-cloud-aws-starter-s3`.
 container — endpoint, region, and credentials all come from `MotoContainer` automatically,
 with nothing to configure in `application.yml` or a test `@Configuration` class.
 
-On top of that, this module also registers an `S3ClientCustomizer` that forces path-style
-bucket addressing. Moto (like real AWS for non-standard endpoints) rejects
-virtual-hosted-style addressing (`https://<bucket>.endpoint/...`), so without this the S3
-client would fail to resolve buckets against Moto's endpoint. This customizer only applies
-when an `S3Client`/`S3ClientBuilder` is actually on the classpath.
+On top of that, this module contributes `spring.cloud.aws.s3.path-style-access-enabled=true`,
+which forces path-style bucket addressing. Moto (like real AWS for non-standard endpoints)
+rejects virtual-hosted-style addressing (`https://<bucket>.endpoint/...`), so without this the
+S3 client would fail to resolve buckets against Moto's endpoint. It only applies when an
+`S3Client`/`S3ClientBuilder` is actually on the classpath, and because it arrives as a
+property rather than a client customizer it also reaches the presigner, the CRT async client
+and the transfer manager. Setting the property yourself overrides it.
 
 ### Which AWS services are supported
 
 `AwsConnectionDetails` is generic across every Spring Cloud AWS starter — S3, SQS, SNS,
 DynamoDB, SES, and so on all pick up the container's endpoint/region/credentials via
-`@ServiceConnection` the same way. The path-style customizer described above is S3-specific
+`@ServiceConnection` the same way. The path-style property described above is S3-specific
 plumbing this module adds on top; other services need no equivalent adjustment to work
 against Moto.
 
