@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+### Fixed
+
+- S3 path-style access is now contributed as the
+  `spring.cloud.aws.s3.path-style-access-enabled` property instead of an `S3ClientCustomizer`
+  bean. Building an `S3Client` previously failed with `ForcePathStyle has been configured on
+  both S3Configuration and the client/global level` whenever the consuming application set
+  that property itself, to either value. Contributing the property also reaches the
+  `S3Presigner`, CRT async client and transfer manager, none of which a customizer could
+  configure. An application setting the property explicitly now overrides the module's value.
+
 ## [0.1.0] - 2026-07-23
 
 ### Added
