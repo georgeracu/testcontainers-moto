@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.cloud.aws.s3.path-style-access-enabled=true")
 @Testcontainers
 class MotoAwsAutoConfigurationTest {
 
