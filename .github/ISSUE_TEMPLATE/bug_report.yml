@@ -1,5 +1,7 @@
 name: Bug report
-description: Report a bug or unexpected behavior
+description: Report a bug or unexpected behaviour
+labels:
+  - bug
 body:
   - type: textarea
     id: what-happened
@@ -17,11 +19,19 @@ body:
     validations:
       required: false
   - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Stack trace or Testcontainers log output, if any.
+      render: shell
+    validations:
+      required: false
+  - type: textarea
     id: versions
     attributes:
       label: Versions
       description: Please specify the environment details below.
-      placeholder: |
+      value: |
         - Module version:
         - Moto image tag:
         - Java version:

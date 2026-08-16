@@ -1,5 +1,7 @@
 name: Feature request
 description: Suggest an idea or feature for testcontainers-moto
+labels:
+  - enhancement
 body:
   - type: textarea
     id: problem
