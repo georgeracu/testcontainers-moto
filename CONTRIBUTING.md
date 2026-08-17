@@ -60,6 +60,12 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 3. Ensure `./gradlew build` passes locally.
 4. Open a pull request describing what changed and why. CI must pass before merge.
 
+## AI assistance
+
+Use whatever tooling helps, but the requirement is that you understand what you submit. Be
+ready to explain why the change is correct and to answer review questions about it, because a
+patch its author cannot defend costs more to review than it saves.
+
 ## Reporting issues
 
 Please open a [GitHub issue](https://github.com/georgeracu/testcontainers-moto/issues) with
