@@ -12,7 +12,11 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 
+import java.lang.reflect.Method;
+import java.net.http.HttpRequest;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Testcontainers
 class MotoContainerTest {
@@ -52,11 +56,15 @@ class MotoContainerTest {
     }
 
     @Test
-    void exposesDashboardUrlAndBackendState() {
+    void exposesDashboardUrl() {
+        assertThat(moto.getDashboardUrl()).isEqualTo(moto.getEndpoint().resolve("/moto-api/"));
+    }
+
+    @Test
+    void exposesBackendState() {
         try (S3Client s3 = s3()) {
             s3.createBucket(CreateBucketRequest.builder().bucket("backend-state-bucket").build());
 
-            assertThat(moto.getDashboardUrl()).isEqualTo(moto.getEndpoint().resolve("/moto-api/"));
             assertThat(moto.getBackendState()).contains("backend-state-bucket");
         }
     }
@@ -88,5 +96,21 @@ class MotoContainerTest {
             assertThat(first.accessKey().accessKeyId())
                     .isEqualTo(second.accessKey().accessKeyId());
         }
+    }
+
+    @Test
+    void sendReportsNonSuccessfulMotoApiCall() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(moto.getEndpoint().resolve("/moto-api/does-not-exist"))
+                .GET()
+                .build();
+        Method send = MotoContainer.class.getDeclaredMethod("send", HttpRequest.class);
+        send.setAccessible(true);
+
+        assertThatThrownBy(() -> send.invoke(moto, request))
+                .hasCauseInstanceOf(IllegalStateException.class)
+                .cause()
+                .hasMessageContaining(request.uri().toString())
+                .hasMessageContaining("returned 404");
     }
 }
