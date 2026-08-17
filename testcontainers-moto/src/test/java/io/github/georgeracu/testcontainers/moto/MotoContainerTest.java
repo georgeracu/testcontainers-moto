@@ -51,6 +51,16 @@ class MotoContainerTest {
     }
 
     @Test
+    void exposesDashboardUrlAndBackendState() {
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket("backend-state-bucket").build());
+
+            assertThat(moto.getDashboardUrl()).isEqualTo(moto.getEndpoint().resolve("/moto-api/"));
+            assertThat(moto.getBackendState()).contains("backend-state-bucket");
+        }
+    }
+
+    @Test
     void resetClearsAllState() {
         try (S3Client s3 = s3()) {
             s3.createBucket(CreateBucketRequest.builder().bucket("task2-reset-bucket").build());
