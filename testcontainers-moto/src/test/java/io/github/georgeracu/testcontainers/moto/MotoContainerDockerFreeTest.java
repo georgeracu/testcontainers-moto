@@ -33,4 +33,11 @@ class MotoContainerDockerFreeTest {
         assertThat(container.getSecretKey()).isEqualTo("test");
         assertThat(container.getRegion()).isEqualTo("us-east-1");
     }
+
+    @Test
+    void configuresRegion() {
+        MotoContainer container = new MotoContainer("motoserver/moto").withRegion("eu-west-1");
+
+        assertThat(container.getRegion()).isEqualTo("eu-west-1");
+    }
 }
