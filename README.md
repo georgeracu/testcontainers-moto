@@ -5,6 +5,10 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.georgeracu/testcontainers-moto)](https://central.sonatype.com/artifact/io.github.georgeracu/testcontainers-moto)
 [![License](https://img.shields.io/github/license/georgeracu/testcontainers-moto)](LICENSE)
 
+If you're looking for a way to test AWS integrations in Java or Kotlin without an AWS account, without network calls, and without any per-service setup, that's exactly what this project is for. `testcontainers-moto` wraps [Moto](https://github.com/getmoto/moto), the open-source mock AWS server, in a single Testcontainers module, so a JUnit 5 or JUnit 4 test can talk to S3, DynamoDB, SQS, SNS, IAM and dozens of other AWS services against one local container instead of the real cloud.
+
+Teams reach for it for fast, deterministic integration tests: no throttling, no shared test accounts, no buckets or tables left behind to clean up, and a CI pipeline that doesn't depend on AWS being reachable at all. Spring Boot projects get a second module, `spring-boot-testcontainers-moto`, which auto-configures Spring Cloud AWS clients through `@ServiceConnection` with nothing to wire up by hand.
+
 A [Testcontainers](https://testcontainers.com/) module for [Moto](https://github.com/getmoto/moto),
 a mock AWS server. Moto serves every AWS service on a single port with no per-service
 opt-in, so `MotoContainer` gives you one container and one endpoint that any AWS SDK client
