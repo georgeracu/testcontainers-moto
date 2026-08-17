@@ -26,6 +26,7 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(CONNECT_TIMEOUT)
             .build();
+    private String region = "us-east-1";
 
     /** Creates a Moto container from a Docker image reference, e.g. {@code "motoserver/moto:5.1.22"}. */
     public MotoContainer(String dockerImageName) {
@@ -60,9 +61,15 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
         return "test";
     }
 
-    /** Default AWS region Moto assumes when none is otherwise configured. */
+    /** Configures the AWS region exposed to service clients. */
+    public MotoContainer withRegion(String region) {
+        this.region = region;
+        return self();
+    }
+
+    /** AWS region service clients should use. */
     public String getRegion() {
-        return "us-east-1";
+        return region;
     }
 
     /**
