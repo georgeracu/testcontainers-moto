@@ -20,7 +20,8 @@ class MotoAwsAutoConfigurationTest {
 
     @Container
     @ServiceConnection
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22")
+            .withRegion("eu-west-1");
 
     @Autowired
     private AwsConnectionDetails awsConnectionDetails;
@@ -31,7 +32,7 @@ class MotoAwsAutoConfigurationTest {
     @Test
     void exposesMotoAwsConnectionDetails() {
         assertThat(awsConnectionDetails.getEndpoint()).isEqualTo(moto.getEndpoint());
-        assertThat(awsConnectionDetails.getRegion()).isEqualTo(moto.getRegion());
+        assertThat(awsConnectionDetails.getRegion()).isEqualTo("eu-west-1");
         assertThat(awsConnectionDetails.getAccessKey()).isEqualTo(moto.getAccessKey());
         assertThat(awsConnectionDetails.getSecretKey()).isEqualTo(moto.getSecretKey());
     }
