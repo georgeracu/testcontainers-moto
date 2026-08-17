@@ -46,6 +46,11 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
         return URI.create("http://" + getHost() + ":" + getMappedPort(MOTO_PORT));
     }
 
+    /** Moto's web dashboard. */
+    public URI getDashboardUrl() {
+        return getEndpoint().resolve("/moto-api/");
+    }
+
     /** Fixed dummy access key Moto accepts for any request. */
     public String getAccessKey() {
         return "test";
@@ -65,6 +70,21 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
     /** AWS region service clients should use. */
     public String getRegion() {
         return region;
+    }
+
+    /**
+     * Returns Moto's backend state as raw JSON. {@code GET /moto-api/data.json}.
+     *
+     * <p>This endpoint is consumed by Moto's dashboard but is not documented alongside
+     * {@code /moto-api/reset} in Moto's server-mode documentation. Its response is Moto's
+     * internal state dump and has no stability guarantee across Moto versions.
+     */
+    public String getBackendState() {
+        return send(HttpRequest.newBuilder()
+                .uri(getEndpoint().resolve("/moto-api/data.json"))
+                .timeout(REQUEST_TIMEOUT)
+                .GET()
+                .build());
     }
 
     /**
@@ -99,13 +119,14 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
                 .build());
     }
 
-    private void send(HttpRequest request) {
+    private String send(HttpRequest request) {
         try {
-            HttpResponse<Void> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
                 throw new IllegalStateException(
                         "moto-api call to " + request.uri() + " returned " + response.statusCode());
             }
+            return response.body();
         } catch (IOException e) {
             throw new IllegalStateException("moto-api call to " + request.uri() + " failed", e);
         } catch (InterruptedException e) {
