@@ -60,6 +60,25 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 3. Ensure `./gradlew build` passes locally.
 4. Open a pull request describing what changed and why. CI must pass before merge.
 
+## Releasing
+
+`main` carries the next `-SNAPSHOT` version, so a release starts by naming it:
+
+1. Bump `VERSION_NAME` in `gradle.properties` to the release version.
+2. In `CHANGELOG.md`, rename `[Unreleased]` to that version with a date, add a fresh empty
+   `[Unreleased]`, and update the compare links at the bottom.
+3. Bump the install snippets in `README.md`.
+4. Commit as `chore(release): x.y.z` and merge to `main`.
+5. Tag the merge commit `vx.y.z` and push it —
+   [`.github/workflows/release.yml`](.github/workflows/release.yml) checks the tag against
+   `VERSION_NAME`, runs the full build, publishes both modules to Maven Central and creates
+   the GitHub Release from the CHANGELOG section.
+6. Follow up with a commit moving `VERSION_NAME` to the next `-SNAPSHOT`.
+
+If the workflow fails, delete the tag, fix the problem and re-tag: Maven Central rejects a
+duplicate coordinate rather than overwriting it, so a partial run cannot lose anything
+silently.
+
 ## AI assistance
 
 Use whatever tooling helps, but the requirement is that you understand what you submit. Be

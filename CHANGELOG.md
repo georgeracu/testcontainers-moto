@@ -6,6 +6,11 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+### Added
+
+- Release workflow publishing both modules to Maven Central and creating the GitHub Release
+  on a `v*` tag push, with the tag checked against `VERSION_NAME` before anything is built.
+
 ## [0.2.0] - 2026-08-18
 
 ### Added
