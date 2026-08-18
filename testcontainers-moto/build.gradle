@@ -1,13 +1,13 @@
 dependencies {
-    api platform("org.testcontainers:testcontainers-bom:${providers.gradleProperty('testcontainersVersion').get()}")
-    api 'org.testcontainers:testcontainers'
+    api platform(libs.testcontainers.bom)
+    api libs.testcontainers
 
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation "org.junit.jupiter:junit-jupiter:${providers.gradleProperty('junitVersion').get()}"
-    testImplementation "org.assertj:assertj-core:${providers.gradleProperty('assertjVersion').get()}"
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation libs.testcontainers.junit.jupiter
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj.core
+    testRuntimeOnly libs.junit.platform.launcher
 
-    testImplementation platform("software.amazon.awssdk:bom:${providers.gradleProperty('awsSdkVersion').get()}")
-    testImplementation 'software.amazon.awssdk:s3'
-    testImplementation 'software.amazon.awssdk:iam'
+    testImplementation platform(libs.aws.sdk.bom)
+    testImplementation libs.aws.sdk.s3
+    testImplementation libs.aws.sdk.iam
 }
