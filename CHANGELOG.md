@@ -6,6 +6,20 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+### Added
+
+- Release workflow publishing both modules to Maven Central and creating the GitHub Release
+  on a `v*` tag push, with the tag checked against `VERSION_NAME` before anything is built.
+
+## [0.2.0] - 2026-08-18
+
+### Added
+
+- `MotoContainer.withRegion(String)`: configurable client-side AWS region support, defaults to
+  `us-east-1`.
+- `getBackendState()` and `getDashboardUrl()` on `MotoContainer`: read-only access to Moto's raw
+  backend state dump and dashboard URL, no new runtime dependencies.
+
 ### Fixed
 
 - S3 path-style access is now contributed as the
@@ -30,5 +44,6 @@ All notable changes to this project are documented in this file. The format is b
 - Maven Central publishing configuration (`io.github.georgeracu` namespace) for both
   modules via the vanniktech `maven-publish` plugin.
 
-[Unreleased]: https://github.com/georgeracu/testcontainers-moto/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/georgeracu/testcontainers-moto/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/georgeracu/testcontainers-moto/releases/tag/v0.2.0
 [0.1.0]: https://github.com/georgeracu/testcontainers-moto/releases/tag/v0.1.0
