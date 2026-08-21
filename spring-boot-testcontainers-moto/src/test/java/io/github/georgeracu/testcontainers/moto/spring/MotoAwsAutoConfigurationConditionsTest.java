@@ -50,6 +50,12 @@ class MotoAwsAutoConfigurationConditionsTest {
         contextRunner.withBean(MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails.class,
                         () -> org.mockito.Mockito.mock(
                                 MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails.class))
+                .run(context -> assertThat(context.getEnvironment()
+                        .getProperty("spring.cloud.aws.s3.path-style-access-enabled")).isEqualTo("true"));
+
+        contextRunner.withBean(MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails.class,
+                        () -> org.mockito.Mockito.mock(
+                                MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails.class))
                 .withPropertyValues("spring.cloud.aws.s3.path-style-access-enabled=false")
                 .run(context -> assertThat(context.getEnvironment()
                         .getProperty("spring.cloud.aws.s3.path-style-access-enabled")).isEqualTo("false"));
