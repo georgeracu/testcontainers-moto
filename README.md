@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/georgeracu/testcontainers-moto/graph/badge.svg)](https://codecov.io/gh/georgeracu/testcontainers-moto)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.georgeracu/testcontainers-moto)](https://central.sonatype.com/artifact/io.github.georgeracu/testcontainers-moto)
 [![License](https://img.shields.io/github/license/georgeracu/testcontainers-moto)](LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/georgeracu/testcontainers-moto)
 
 If you're looking for a way to test AWS integrations in Java or Kotlin without an AWS account, without network calls, and without any per-service setup, that's exactly what this project is for. `testcontainers-moto` wraps [Moto](https://github.com/getmoto/moto), the open-source mock AWS server, in a single Testcontainers module, so a JUnit 5 or JUnit 4 test can talk to S3, DynamoDB, SQS, SNS, IAM and dozens of other AWS services against one local container instead of the real cloud.
 
