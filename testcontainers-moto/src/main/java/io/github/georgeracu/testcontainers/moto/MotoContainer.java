@@ -153,9 +153,10 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
     private String send(HttpRequest request) {
         try {
             HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
+            int status = response.statusCode();
+            if (status < 200 || status >= 300) {
                 throw new IllegalStateException(
-                        "moto-api call to " + request.uri() + " returned " + response.statusCode());
+                        "moto-api call to " + request.uri() + " returned " + status);
             }
             return response.body();
         } catch (IOException e) {
