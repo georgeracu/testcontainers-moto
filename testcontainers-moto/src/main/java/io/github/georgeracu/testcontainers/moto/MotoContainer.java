@@ -119,12 +119,44 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
                 .build());
     }
 
+    /**
+     * Sets a state transition progression for a specific model.
+     *
+     * @param modelName the model name, e.g., "dax::cluster"
+     * @param transition the state transition configuration
+     */
+    public void setTransition(String modelName, Transition transition) {
+        String json = "{\"model_name\":\"" + modelName + "\",\"transition\":" + transition.toJson() + "}";
+        send(HttpRequest.newBuilder()
+                .uri(getEndpoint().resolve("/moto-api/state-manager/set-transition"))
+                .timeout(REQUEST_TIMEOUT)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build());
+    }
+
+    /**
+     * Removes any custom state transition progression for a specific model.
+     *
+     * @param modelName the model name, e.g., "dax::cluster"
+     */
+    public void unsetTransition(String modelName) {
+        String json = "{\"model_name\":\"" + modelName + "\"}";
+        send(HttpRequest.newBuilder()
+                .uri(getEndpoint().resolve("/moto-api/state-manager/unset-transition"))
+                .timeout(REQUEST_TIMEOUT)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build());
+    }
+
     private String send(HttpRequest request) {
         try {
             HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
+            int status = response.statusCode();
+            if (status < 200 || status >= 300) {
                 throw new IllegalStateException(
-                        "moto-api call to " + request.uri() + " returned " + response.statusCode());
+                        "moto-api call to " + request.uri() + " returned " + status);
             }
             return response.body();
         } catch (IOException e) {
