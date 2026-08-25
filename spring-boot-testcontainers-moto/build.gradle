@@ -1,10 +1,10 @@
 dependencies {
     api project(':testcontainers-moto')
-    api platform(libs.spring.boot.dependencies)
-    api libs.spring.boot.testcontainers
 
-    compileOnly platform(libs.spring.cloud.aws.dependencies)
-    compileOnly libs.spring.cloud.aws.autoconfigure
+    compileOnly platform(libs.spring.boot3.dependencies)
+    compileOnly libs.spring.boot3.testcontainers
+    compileOnly platform(libs.spring.cloud.aws3.dependencies)
+    compileOnly libs.spring.cloud.aws3.autoconfigure
     compileOnly platform(libs.aws.sdk.bom)
     compileOnly libs.aws.sdk.s3
 
@@ -12,10 +12,48 @@ dependencies {
     testImplementation libs.assertj.core
     testRuntimeOnly libs.junit.platform.launcher
 
-    testImplementation libs.spring.boot.starter.test
+    testImplementation platform(libs.spring.boot3.dependencies)
+    testImplementation libs.spring.boot3.testcontainers
+    testImplementation libs.spring.boot3.starter.test
     testImplementation libs.testcontainers.junit.jupiter
 
-    testImplementation platform(libs.spring.cloud.aws.dependencies)
-    testImplementation libs.spring.cloud.aws.starter.s3
+    testImplementation platform(libs.spring.cloud.aws3.dependencies)
+    testImplementation libs.spring.cloud.aws3.starter.s3
     testImplementation platform(libs.aws.sdk.bom)
+}
+
+testing {
+    suites {
+        testBoot4(JvmTestSuite) {
+            sources {
+                java.srcDirs('src/test/java')
+            }
+
+            dependencies {
+                implementation project()
+                implementation platform(libs.spring.boot4.dependencies)
+                implementation libs.spring.boot4.testcontainers
+                implementation platform(libs.spring.cloud.aws4.dependencies)
+                implementation libs.spring.cloud.aws4.autoconfigure
+                implementation platform(libs.aws.sdk.bom)
+                implementation libs.aws.sdk.s3
+                implementation libs.junit.jupiter
+                implementation libs.assertj.core
+                implementation libs.junit.platform.launcher
+                implementation libs.spring.boot4.starter.test
+                implementation libs.testcontainers.junit.jupiter
+                implementation libs.spring.cloud.aws4.starter.s3
+            }
+
+            targets.all {
+                testTask.configure {
+                    useJUnitPlatform()
+                }
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn testBoot4
 }

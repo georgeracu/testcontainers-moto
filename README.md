@@ -113,6 +113,9 @@ Maven:
 
 Both artifacts are published to Maven Central — no extra repository declaration needed.
 
+Spring Boot consumers must also provide `spring-boot-testcontainers` on their own test
+classpath; `spring-boot-testcontainers-moto` does not bundle or pin it.
+
 ## `testcontainers-moto`
 
 ### Basic usage
