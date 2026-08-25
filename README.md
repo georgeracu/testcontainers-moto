@@ -55,7 +55,7 @@ Add the core module to your test classpath, write a test, run it — no Moto ins
 no AWS credentials, no account setup:
 
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.1.0")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.3.1")
 ```
 
 ```java
@@ -88,9 +88,9 @@ your test body runs. That's the whole setup.
 Gradle:
 
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.1.0")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.3.1")
 // and/or, for Spring Boot projects:
-testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.1.0")
+testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.3.1")
 ```
 
 Maven:
@@ -99,14 +99,14 @@ Maven:
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>testcontainers-moto</artifactId>
-    <version>0.1.0</version>
+    <version>0.3.1</version>
     <scope>test</scope>
 </dependency>
 <!-- and/or, for Spring Boot projects: -->
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>spring-boot-testcontainers-moto</artifactId>
-    <version>0.1.0</version>
+    <version>0.3.1</version>
     <scope>test</scope>
 </dependency>
 ```
