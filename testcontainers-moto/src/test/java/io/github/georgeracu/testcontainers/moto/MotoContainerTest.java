@@ -113,4 +113,10 @@ class MotoContainerTest {
                 .hasMessageContaining(request.uri().toString())
                 .hasMessageContaining("returned 404");
     }
+
+    @Test
+    void supportsStateTransitions() {
+        moto.setTransition("dax::cluster", Transition.time(java.time.Duration.ofSeconds(5)));
+        moto.unsetTransition("dax::cluster");
+    }
 }
