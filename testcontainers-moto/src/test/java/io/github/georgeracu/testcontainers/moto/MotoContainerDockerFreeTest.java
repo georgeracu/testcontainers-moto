@@ -116,6 +116,44 @@ class MotoContainerDockerFreeTest {
         }
     }
 
+    @Test
+    void transitionsSendExpectedRequests() throws IOException {
+        List<String> requests = new CopyOnWriteArrayList<>();
+        List<String> bodies = new CopyOnWriteArrayList<>();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/", exchange -> {
+            requests.add(exchange.getRequestMethod() + " " + exchange.getRequestURI());
+            bodies.add(new String(exchange.getRequestBody().readAllBytes()));
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
+        });
+        server.start();
+
+        try {
+            URI endpoint = URI.create("http://127.0.0.1:" + server.getAddress().getPort());
+            MotoContainer container = containerAt(endpoint);
+
+            container.setTransition("dax::cluster", Transition.time(java.time.Duration.ofSeconds(5)));
+            container.setTransition("dax::cluster", Transition.manual(3));
+            container.setTransition("dax::cluster", Transition.immediate());
+            container.unsetTransition("dax::cluster");
+
+            assertThat(requests).containsExactly(
+                    "POST /moto-api/state-manager/set-transition",
+                    "POST /moto-api/state-manager/set-transition",
+                    "POST /moto-api/state-manager/set-transition",
+                    "POST /moto-api/state-manager/unset-transition");
+
+            assertThat(bodies).containsExactly(
+                    "{\"model_name\":\"dax::cluster\",\"transition\":{\"progression\":\"time\",\"seconds\":5}}",
+                    "{\"model_name\":\"dax::cluster\",\"transition\":{\"progression\":\"manual\",\"times\":3}}",
+                    "{\"model_name\":\"dax::cluster\",\"transition\":{\"progression\":\"immediate\"}}",
+                    "{\"model_name\":\"dax::cluster\"}");
+        } finally {
+            server.stop(0);
+        }
+    }
+
     private MotoContainer containerAt(URI endpoint) {
         return new MotoContainer("motoserver/moto") {
             @Override

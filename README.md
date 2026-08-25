@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/georgeracu/testcontainers-moto/graph/badge.svg)](https://codecov.io/gh/georgeracu/testcontainers-moto)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.georgeracu/testcontainers-moto)](https://central.sonatype.com/artifact/io.github.georgeracu/testcontainers-moto)
 [![License](https://img.shields.io/github/license/georgeracu/testcontainers-moto)](LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/georgeracu/testcontainers-moto)
 
 If you're looking for a way to test AWS integrations in Java or Kotlin without an AWS account, without network calls, and without any per-service setup, that's exactly what this project is for. `testcontainers-moto` wraps [Moto](https://github.com/getmoto/moto), the open-source mock AWS server, in a single Testcontainers module, so a JUnit 5 or JUnit 4 test can talk to S3, DynamoDB, SQS, SNS, IAM and dozens of other AWS services against one local container instead of the real cloud.
 
@@ -54,7 +55,7 @@ Add the core module to your test classpath, write a test, run it — no Moto ins
 no AWS credentials, no account setup:
 
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.1.0")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.3.1")
 ```
 
 ```java
@@ -87,9 +88,9 @@ your test body runs. That's the whole setup.
 Gradle:
 
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.1.0")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.3.1")
 // and/or, for Spring Boot projects:
-testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.1.0")
+testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.3.1")
 ```
 
 Maven:
@@ -98,14 +99,14 @@ Maven:
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>testcontainers-moto</artifactId>
-    <version>0.1.0</version>
+    <version>0.3.1</version>
     <scope>test</scope>
 </dependency>
 <!-- and/or, for Spring Boot projects: -->
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>spring-boot-testcontainers-moto</artifactId>
-    <version>0.1.0</version>
+    <version>0.3.1</version>
     <scope>test</scope>
 </dependency>
 ```
