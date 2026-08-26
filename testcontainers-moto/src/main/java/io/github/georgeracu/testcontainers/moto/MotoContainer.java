@@ -83,6 +83,11 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
      * <p>This endpoint is consumed by Moto's dashboard but is not documented alongside
      * {@code /moto-api/reset} in Moto's server-mode documentation. Its response is Moto's
      * internal state dump and has no stability guarantee across Moto versions.
+     *
+     * <p>Like {@link #reset()} and {@link #seed(int)}, this operates on the shared Moto
+     * backend instance.
+     *
+     * @since 0.3.1
      */
     public String getBackendState() {
         return send(HttpRequest.newBuilder()
