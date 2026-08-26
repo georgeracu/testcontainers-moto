@@ -5,8 +5,8 @@ assertj = "3.24.2"
 awsSdk = "2.54.2"
 springBoot3 = "3.5.16"
 springBoot4 = "3.5.16"
-springCloudAws3 = "3.4.0"
-springCloudAws4 = "4.1.0"
+springCloudAws3 = "3.4.2"
+springCloudAws4 = "3.4.2"
 
 [libraries]
 testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "testcontainers" }
