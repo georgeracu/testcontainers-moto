@@ -35,7 +35,7 @@ class MotoContainerDockerFreeTest {
 
     @Test
     void returnsDefaultCredentialsAndRegion() {
-        MotoContainer container = new MotoContainer("motoserver/moto");
+        MotoContainer container = new MotoContainer("motoserver/moto:5.1.22");
 
         assertThat(container.getAccessKey()).isEqualTo("test");
         assertThat(container.getSecretKey()).isEqualTo("test");
@@ -44,7 +44,7 @@ class MotoContainerDockerFreeTest {
 
     @Test
     void configuresRegion() {
-        MotoContainer container = new MotoContainer("motoserver/moto").withRegion("eu-west-1");
+        MotoContainer container = new MotoContainer("motoserver/moto:5.1.22").withRegion("eu-west-1");
 
         assertThat(container.getRegion()).isEqualTo("eu-west-1");
     }
@@ -155,7 +155,7 @@ class MotoContainerDockerFreeTest {
     }
 
     private MotoContainer containerAt(URI endpoint) {
-        return new MotoContainer("motoserver/moto") {
+        return new MotoContainer("motoserver/moto:5.1.22") {
             @Override
             public URI getEndpoint() {
                 return endpoint;

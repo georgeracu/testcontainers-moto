@@ -24,7 +24,7 @@ import java.time.Duration;
  */
 public class MotoContainer extends GenericContainer<MotoContainer> {
 
-    private static final DockerImageName DEFAULT_IMAGE = DockerImageName.parse("motoserver/moto");
+    private static final DockerImageName DEFAULT_IMAGE = DockerImageName.parse("motoserver/moto:5.1.22");
     private static final int MOTO_PORT = 5000;
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
