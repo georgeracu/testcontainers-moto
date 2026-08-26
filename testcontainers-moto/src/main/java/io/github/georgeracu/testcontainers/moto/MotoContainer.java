@@ -16,6 +16,11 @@ import java.time.Duration;
  *
  * <p>Moto serves every AWS service on a single port (5000) with no service
  * opt-in, so this container exposes one {@link #getEndpoint()} for all services.
+ *
+ * <p>{@link #reset()}, {@link #seed(int)}, and {@link #getBackendState()} all operate on
+ * the Moto instance shared by this container. Do not call them concurrently from separate
+ * tests or other isolation domains that share the container; use separate containers or
+ * serialize access instead.
  */
 public class MotoContainer extends GenericContainer<MotoContainer> {
 
