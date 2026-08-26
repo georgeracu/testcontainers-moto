@@ -66,7 +66,14 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
         return "test";
     }
 
-    /** Configures the AWS region exposed to service clients. */
+    /**
+     * Configures the AWS region exposed to service clients.
+     *
+     * @deprecated The {@code region} field is a JVM-side default hint, not a container attribute
+     * that the Moto daemon itself sees. This method behaves like a setter, not an immutable builder —
+     * chained/repeated calls on the same reference are observable since it returns {@code this}.
+     * This override does not affect the recommended {@code MotoContainer.create()} path.
+     */
     public MotoContainer withRegion(String region) {
         this.region = region;
         return self();
