@@ -52,12 +52,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          awk -v v="${GITHUB_REF_NAME#v}" '
-            /^\[/ { if (found) exit }
-            /^## \[/ { if (found) exit; if ($0 ~ "^## \\[" v "\\]") { found = 1; next } }
-            found
-          ' CHANGELOG.md > notes.md
           gh release create "$GITHUB_REF_NAME" \
             --verify-tag \
             --title "$GITHUB_REF_NAME" \
-            --notes-file notes.md
+            --generate-release-notes
