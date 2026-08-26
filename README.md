@@ -356,6 +356,8 @@ Versions this project is built and tested against (see
 Tests run real containers via Testcontainers, so a working Docker daemon is required — see
 [Troubleshooting](#troubleshooting--faq) if `docker-java` can't negotiate a connection.
 
+**Windows contributors**: `git clone` can fail with a 'Filename too long' error due to deeply nested Java package paths hitting the Windows `MAX_PATH` limit. To fix this, run `git config --global core.longpaths true` before cloning. If a partial checkout already happened, enable long paths and then run `git reset --hard`.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
