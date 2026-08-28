@@ -66,14 +66,7 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
         return "test";
     }
 
-    /**
-     * Configures the AWS region exposed to service clients.
-     *
-     * @deprecated The {@code region} field is a JVM-side default hint, not a container attribute
-     * that the Moto daemon itself sees. This method behaves like a setter, not an immutable builder —
-     * chained/repeated calls on the same reference are observable since it returns {@code this}.
-     * This override does not affect the recommended {@code MotoContainer.create()} path.
-     */
+    /** Configures the AWS region exposed to service clients. */
     public MotoContainer withRegion(String region) {
         this.region = region;
         return self();
@@ -90,6 +83,11 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
      * <p>This endpoint is consumed by Moto's dashboard but is not documented alongside
      * {@code /moto-api/reset} in Moto's server-mode documentation. Its response is Moto's
      * internal state dump and has no stability guarantee across Moto versions.
+     *
+     * <p>Like {@link #reset()} and {@link #seed(int)}, this operates on the shared Moto
+     * backend instance.
+     *
+     * @since 0.3.1
      */
     public String getBackendState() {
         return send(HttpRequest.newBuilder()
