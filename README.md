@@ -5,6 +5,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.georgeracu/testcontainers-moto)](https://central.sonatype.com/artifact/io.github.georgeracu/testcontainers-moto)
 [![License](https://img.shields.io/github/license/georgeracu/testcontainers-moto)](LICENSE)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/georgeracu/testcontainers-moto)
+[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/georgeracu/testcontainers-moto?utm_source=oss&utm_medium=github&utm_campaign=georgeracu%2Ftestcontainers-moto&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
 
 If you're looking for a way to test AWS integrations in Java or Kotlin without an AWS account, without network calls, and without any per-service setup, that's exactly what this project is for. `testcontainers-moto` wraps [Moto](https://github.com/getmoto/moto), the open-source mock AWS server, in a single Testcontainers module, so a JUnit 5 or JUnit 4 test can talk to S3, DynamoDB, SQS, SNS, IAM and dozens of other AWS services against one local container instead of the real cloud.
 
@@ -355,6 +356,8 @@ Versions this project is built and tested against (see
 
 Tests run real containers via Testcontainers, so a working Docker daemon is required — see
 [Troubleshooting](#troubleshooting--faq) if `docker-java` can't negotiate a connection.
+
+**Windows contributors**: `git clone` can fail with a 'Filename too long' error due to deeply nested Java package paths hitting the Windows `MAX_PATH` limit. To fix this, run `git config --global core.longpaths true` before cloning. If a partial checkout already happened, enable long paths and then run `git reset --hard` (caution: this discards local changes, so only use it on a fresh failed clone or stash your work first).
 
 ## Contributing
 
