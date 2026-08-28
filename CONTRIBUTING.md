@@ -24,6 +24,8 @@ this.
 CI runs the same `./gradlew build` on every push and pull request against `main` — see
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
+**Windows contributors**: `git clone` can fail with a 'Filename too long' error due to deeply nested Java package paths hitting the Windows `MAX_PATH` limit. To fix this, run `git config --global core.longpaths true` before cloning. If a partial checkout already happened, enable long paths and then run `git reset --hard` (caution: this discards local changes, so only use it on a fresh failed clone or stash your work first).
+
 ## Project layout
 
 - `testcontainers-moto` — the core `MotoContainer` module, no framework dependencies beyond
