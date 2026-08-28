@@ -1,7 +1,7 @@
 [versions]
 testcontainers = "1.21.3"
 junit = "6.1.3"
-assertj = "3.24.2"
+assertj = "3.27.7"
 awsSdk = "2.54.2"
 springBoot3 = "3.5.16"
 springBoot4 = "3.5.16"
