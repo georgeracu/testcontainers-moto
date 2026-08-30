@@ -6,6 +6,29 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-28
+
+### Added
+
+- `MotoContainer.setTransition(Transition)` / `unsetTransition()`: interact with Moto's
+  state-manager API to control error/latency injection during a test, via a `Transition`
+  class with `immediate`, `time`, and `manual` factory methods, no new JSON dependency.
+- `spring-boot-testcontainers-moto` now supports Spring Boot 3 and 4 from a single artifact;
+  the published Boot BOM constraint was removed in favour of a consumer-provided test
+  dependency.
+
+### Fixed
+
+- `MotoContainer`'s default image was previously untagged and resolved to `:latest`,
+  contradicting the README. It is now pinned to `5.1.22`.
+
+## [0.3.1] - 2026-08-22
+
+Maintenance release: no changes to the published artifacts. CI dependency bumps, a Codecov
+configuration, and added test coverage for auto-configuration conditions without Docker.
+
+## [0.3.0] - 2026-08-18
+
 ### Added
 
 - Release workflow publishing both modules to Maven Central and creating the GitHub Release
@@ -44,6 +67,9 @@ All notable changes to this project are documented in this file. The format is b
 - Maven Central publishing configuration (`io.github.georgeracu` namespace) for both
   modules via the vanniktech `maven-publish` plugin.
 
-[Unreleased]: https://github.com/georgeracu/testcontainers-moto/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/georgeracu/testcontainers-moto/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/georgeracu/testcontainers-moto/releases/tag/v0.4.0
+[0.3.1]: https://github.com/georgeracu/testcontainers-moto/releases/tag/v0.3.1
+[0.3.0]: https://github.com/georgeracu/testcontainers-moto/releases/tag/v0.3.0
 [0.2.0]: https://github.com/georgeracu/testcontainers-moto/releases/tag/v0.2.0
 [0.1.0]: https://github.com/georgeracu/testcontainers-moto/releases/tag/v0.1.0
