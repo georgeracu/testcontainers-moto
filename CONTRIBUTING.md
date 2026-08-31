@@ -64,22 +64,36 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 
 ## Releasing
 
-`main` carries the next `-SNAPSHOT` version, so a release starts by naming it:
+Releases are fully automated from Conventional Commits — there is no manual version bump.
+Every push to `main` runs [`.github/workflows/release.yml`](.github/workflows/release.yml),
+which invokes [semantic-release](https://semantic-release.gitbook.io/) (config in
+[`.releaserc.json`](.releaserc.json)):
 
-1. Bump `VERSION_NAME` in `gradle.properties` to the release version.
-2. In `CHANGELOG.md`, rename `[Unreleased]` to that version with a date, add a fresh empty
-   `[Unreleased]`, and update the compare links at the bottom.
-3. Bump the install snippets in `README.md`.
-4. Commit as `chore(release): x.y.z` and merge to `main`.
-5. Tag the merge commit `vx.y.z` and push it —
-   [`.github/workflows/release.yml`](.github/workflows/release.yml) checks the tag against
-   `VERSION_NAME`, runs the full build, publishes both modules to Maven Central and creates
-   the GitHub Release with automatically generated release notes.
-6. Follow up with a commit moving `VERSION_NAME` to the next `-SNAPSHOT`.
+1. `@semantic-release/commit-analyzer` inspects the commits since the last release and
+   decides whether one is warranted, and whether it's major, minor or patch:
 
-If the workflow fails, delete the tag, fix the problem and re-tag: Maven Central rejects a
-duplicate coordinate rather than overwriting it, so a partial run cannot lose anything
-silently.
+   | Commit prefix | Release type |
+   |---|---|
+   | `feat!:` or a `BREAKING CHANGE:` footer | major |
+   | `feat:` | minor |
+   | `fix:`, `perf:`, `revert:` | patch |
+   | `docs:`, `style:`, `refactor:`, `test:`, `ci:`, `chore:`, `build:` | none |
+
+2. If a release is warranted, `@semantic-release/release-notes-generator` and
+   `@semantic-release/changelog` generate the notes and roll them into `CHANGELOG.md`.
+3. `@semantic-release/exec` bumps `VERSION_NAME` in `gradle.properties` and the install
+   snippets in `README.md` to the new version
+   ([`.github/scripts/bump-version.sh`](.github/scripts/bump-version.sh)), then runs
+   `./gradlew publishAndReleaseToMavenCentral`.
+4. `@semantic-release/git` commits `CHANGELOG.md`, `gradle.properties` and `README.md` as
+   `chore(release): x.y.z [skip ci]` and pushes it to `main`, and semantic-release itself
+   creates and pushes the `vx.y.z` tag.
+5. `@semantic-release/github` creates the GitHub Release against that tag.
+
+Nothing to do beyond writing Conventional Commits and merging to `main`. If the workflow
+fails after Maven Central has already published, don't re-run it blindly: Maven Central
+rejects a duplicate coordinate rather than overwriting it, so check what actually landed
+before retrying.
 
 ## AI assistance
 
