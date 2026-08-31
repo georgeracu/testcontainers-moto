@@ -64,36 +64,35 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 
 ## Releasing
 
-Releases are fully automated from Conventional Commits — there is no manual version bump.
-Every push to `main` runs [`.github/workflows/release.yml`](.github/workflows/release.yml),
-which invokes [semantic-release](https://semantic-release.gitbook.io/) (config in
-[`.releaserc.json`](.releaserc.json)):
+Versioning and changelog generation are automated by
+[release-please](https://github.com/googleapis/release-please) from Conventional Commits
+(config in [`release-please-config.json`](release-please-config.json), current version tracked
+in [`.release-please-manifest.json`](.release-please-manifest.json)) — there is no manual
+version bump. `main` is a protected branch (required PR, required status check, no admin
+bypass), so release-please doesn't push directly to it; instead:
 
-1. `@semantic-release/commit-analyzer` inspects the commits since the last release and
-   decides whether one is warranted, and whether it's major, minor or patch:
+1. Every push to `main` runs
+   [`.github/workflows/release-please.yml`](.github/workflows/release-please.yml), which opens
+   or updates a standing `chore(release): x.y.z` pull request containing the version bump
+   (`gradle.properties`'s `VERSION_NAME`, the install snippets in `README.md`, both marked with
+   `x-release-please-start-version`/`x-release-please-end` comments) and the generated
+   `CHANGELOG.md` entry. The version bump follows Conventional Commits:
 
    | Commit prefix | Release type |
    |---|---|
-   | `feat!:` or a `BREAKING CHANGE:` footer | major |
+   | a `BREAKING CHANGE:` footer | major |
    | `feat:` | minor |
-   | `fix:`, `perf:`, `revert:` | patch |
-   | `docs:`, `style:`, `refactor:`, `test:`, `ci:`, `chore:`, `build:` | none |
+   | anything else releasable (`fix:`, `perf:`, `revert:`, ...) | patch |
+   | `docs:`, `style:`, `refactor:`, `test:`, `ci:`, `chore:`, `build:` | none (hidden from the changelog) |
 
-2. If a release is warranted, `@semantic-release/release-notes-generator` and
-   `@semantic-release/changelog` generate the notes and roll them into `CHANGELOG.md`.
-3. `@semantic-release/exec` bumps `VERSION_NAME` in `gradle.properties` and the install
-   snippets in `README.md` to the new version
-   ([`.github/scripts/bump-version.sh`](.github/scripts/bump-version.sh)), then runs
-   `./gradlew publishAndReleaseToMavenCentral`.
-4. `@semantic-release/git` commits `CHANGELOG.md`, `gradle.properties` and `README.md` as
-   `chore(release): x.y.z [skip ci]` and pushes it to `main`, and semantic-release itself
-   creates and pushes the `vx.y.z` tag.
-5. `@semantic-release/github` creates the GitHub Release against that tag.
+2. Review and merge that PR like any other, once ready to release. Merging it is what triggers
+   the release: release-please creates the GitHub Release and pushes the `vx.y.z` tag.
+3. The tag push triggers [`.github/workflows/release.yml`](.github/workflows/release.yml),
+   which runs `./gradlew publishAndReleaseToMavenCentral`.
 
-Nothing to do beyond writing Conventional Commits and merging to `main`. If the workflow
-fails after Maven Central has already published, don't re-run it blindly: Maven Central
-rejects a duplicate coordinate rather than overwriting it, so check what actually landed
-before retrying.
+If the workflow fails after Maven Central has already published, don't re-run it blindly:
+Maven Central rejects a duplicate coordinate rather than overwriting it, so check what actually
+landed before retrying.
 
 ## AI assistance
 
