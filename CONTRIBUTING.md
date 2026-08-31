@@ -64,22 +64,39 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 
 ## Releasing
 
-`main` carries the next `-SNAPSHOT` version, so a release starts by naming it:
+Versioning and changelog generation are automated by
+[release-please](https://github.com/googleapis/release-please) from Conventional Commits
+(config in [`release-please-config.json`](release-please-config.json), current version tracked
+in [`.release-please-manifest.json`](.release-please-manifest.json)) — there is no manual
+version bump. `main` is a protected branch (required PR, required status check, no admin
+bypass), so release-please doesn't push directly to it; instead:
 
-1. Bump `VERSION_NAME` in `gradle.properties` to the release version.
-2. In `CHANGELOG.md`, rename `[Unreleased]` to that version with a date, add a fresh empty
-   `[Unreleased]`, and update the compare links at the bottom.
-3. Bump the install snippets in `README.md`.
-4. Commit as `chore(release): x.y.z` and merge to `main`.
-5. Tag the merge commit `vx.y.z` and push it —
-   [`.github/workflows/release.yml`](.github/workflows/release.yml) checks the tag against
-   `VERSION_NAME`, runs the full build, publishes both modules to Maven Central and creates
-   the GitHub Release with automatically generated release notes.
-6. Follow up with a commit moving `VERSION_NAME` to the next `-SNAPSHOT`.
+1. Every push to `main` runs the `release-please` job in
+   [`.github/workflows/release.yml`](.github/workflows/release.yml), which opens or updates a
+   standing `chore(release): x.y.z` pull request containing the version bump
+   (`gradle.properties`'s `VERSION_NAME`, the install snippets in `README.md`, both marked with
+   `x-release-please-start-version`/`x-release-please-end` comments) and the generated
+   `CHANGELOG.md` entry. The version bump follows Conventional Commits:
 
-If the workflow fails, delete the tag, fix the problem and re-tag: Maven Central rejects a
-duplicate coordinate rather than overwriting it, so a partial run cannot lose anything
-silently.
+   | Commit prefix | Release type |
+   |---|---|
+   | a `BREAKING CHANGE:` footer, or `!` after the type/scope (e.g. `feat!:`) | major |
+   | `feat:` | minor |
+   | anything else releasable (`fix:`, `perf:`, `revert:`, ...) | patch |
+   | `docs:`, `style:`, `refactor:`, `test:`, `ci:`, `chore:`, `build:` | none (hidden from the changelog) |
+
+2. Review and merge that PR like any other, once ready to release. Merging it is what triggers
+   the release: release-please creates the GitHub Release and pushes the `vx.y.z` tag.
+3. That same workflow run's `publish` job (gated on the `release-please` job's
+   `release_created` output, so it only runs when a release actually happened) checks out the
+   new tag and runs `./gradlew publishAndReleaseToMavenCentral`. It's a second job in the same
+   workflow rather than a separate tag-triggered one because release-please authenticates with
+   the default `GITHUB_TOKEN`, and GitHub doesn't let a `GITHUB_TOKEN`-authenticated push
+   trigger another workflow run — a separate tag-triggered workflow would simply never fire.
+
+If the workflow fails after Maven Central has already published, don't re-run it blindly:
+Maven Central rejects a duplicate coordinate rather than overwriting it, so check what actually
+landed before retrying.
 
 ## AI assistance
 

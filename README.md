@@ -55,9 +55,11 @@ Two artifacts are published:
 Add the core module to your test classpath, write a test, run it — no Moto installation,
 no AWS credentials, no account setup:
 
+<!-- x-release-please-start-version -->
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.3.1")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.4.0")
 ```
+<!-- x-release-please-end -->
 
 ```java
 @Testcontainers
@@ -88,29 +90,33 @@ your test body runs. That's the whole setup.
 
 Gradle:
 
+<!-- x-release-please-start-version -->
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.3.1")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.4.0")
 // and/or, for Spring Boot projects:
-testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.3.1")
+testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.4.0")
 ```
+<!-- x-release-please-end -->
 
 Maven:
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>testcontainers-moto</artifactId>
-    <version>0.3.1</version>
+    <version>0.4.0</version>
     <scope>test</scope>
 </dependency>
 <!-- and/or, for Spring Boot projects: -->
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>spring-boot-testcontainers-moto</artifactId>
-    <version>0.3.1</version>
+    <version>0.4.0</version>
     <scope>test</scope>
 </dependency>
 ```
+<!-- x-release-please-end -->
 
 Both artifacts are published to Maven Central — no extra repository declaration needed.
 
