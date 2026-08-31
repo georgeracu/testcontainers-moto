@@ -1,5 +1,5 @@
 [versions]
-testcontainers = "1.21.3"
+testcontainers = "2.0.5"
 junit = "6.1.3"
 assertj = "3.27.7"
 awsSdk = "2.54.2"
