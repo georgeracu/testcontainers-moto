@@ -57,7 +57,7 @@ no AWS credentials, no account setup:
 
 <!-- x-release-please-start-version -->
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.4.0")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.5.0")
 ```
 <!-- x-release-please-end -->
 
@@ -92,9 +92,9 @@ Gradle:
 
 <!-- x-release-please-start-version -->
 ```groovy
-testImplementation("io.github.georgeracu:testcontainers-moto:0.4.0")
+testImplementation("io.github.georgeracu:testcontainers-moto:0.5.0")
 // and/or, for Spring Boot projects:
-testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.4.0")
+testImplementation("io.github.georgeracu:spring-boot-testcontainers-moto:0.5.0")
 ```
 <!-- x-release-please-end -->
 
@@ -105,14 +105,14 @@ Maven:
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>testcontainers-moto</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
     <scope>test</scope>
 </dependency>
 <!-- and/or, for Spring Boot projects: -->
 <dependency>
     <groupId>io.github.georgeracu</groupId>
     <artifactId>spring-boot-testcontainers-moto</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
     <scope>test</scope>
 </dependency>
 ```
