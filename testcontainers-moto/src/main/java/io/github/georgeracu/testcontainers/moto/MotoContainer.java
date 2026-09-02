@@ -77,6 +77,7 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
    *     chained/repeated calls on the same reference are observable since it returns {@code this}.
    *     This override does not affect the recommended {@code MotoContainer.create()} path.
    */
+  @Deprecated
   public MotoContainer withRegion(String region) {
     this.region = region;
     return self();
