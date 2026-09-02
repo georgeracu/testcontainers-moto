@@ -8,13 +8,13 @@ import org.springframework.context.annotation.PropertySource;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
 /**
- * Enables path-style S3 access when a {@link MotoContainerConnectionDetailsFactory}
- * has produced a {@link MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails},
- * since Moto rejects virtual-hosted-style bucket addressing.
+ * Enables path-style S3 access when a {@link MotoContainerConnectionDetailsFactory} has produced a
+ * {@link MotoContainerConnectionDetailsFactory.MotoAwsConnectionDetails}, since Moto rejects
+ * virtual-hosted-style bucket addressing.
  *
  * <p>Conditioned on that concrete type rather than the generic {@link AwsConnectionDetails}
- * interface, so this doesn't also activate for a LocalStack or real-AWS connection details
- * bean on the same classpath.
+ * interface, so this doesn't also activate for a LocalStack or real-AWS connection details bean on
+ * the same classpath.
  */
 @AutoConfiguration
 @ConditionalOnClass(S3ClientBuilder.class)
@@ -22,7 +22,6 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 @PropertySource("classpath:META-INF/moto-s3-path-style.properties")
 public class MotoAwsAutoConfiguration {
 
-    /** Constructed by Spring Boot's auto-configuration machinery. */
-    public MotoAwsAutoConfiguration() {
-    }
+  /** Constructed by Spring Boot's auto-configuration machinery. */
+  public MotoAwsAutoConfiguration() {}
 }

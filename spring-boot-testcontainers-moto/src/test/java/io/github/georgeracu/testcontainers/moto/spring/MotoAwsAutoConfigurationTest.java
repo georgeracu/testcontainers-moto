@@ -1,7 +1,9 @@
 package io.github.georgeracu.testcontainers.moto.spring;
 
-import io.github.georgeracu.testcontainers.moto.MotoContainer;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.awspring.cloud.autoconfigure.core.AwsConnectionDetails;
+import io.github.georgeracu.testcontainers.moto.MotoContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -12,41 +14,35 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import software.amazon.awssdk.services.s3.S3Client;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @Testcontainers
 class MotoAwsAutoConfigurationTest {
 
-    @Container
-    @ServiceConnection
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22")
-            .withRegion("eu-west-1");
+  @Container @ServiceConnection
+  static final MotoContainer moto =
+      new MotoContainer("motoserver/moto:5.1.22").withRegion("eu-west-1");
 
-    @Autowired
-    private AwsConnectionDetails awsConnectionDetails;
+  @Autowired private AwsConnectionDetails awsConnectionDetails;
 
-    @Autowired
-    private S3Client s3Client;
+  @Autowired private S3Client s3Client;
 
-    @Test
-    void exposesMotoAwsConnectionDetails() {
-        assertThat(awsConnectionDetails.getEndpoint()).isEqualTo(moto.getEndpoint());
-        assertThat(awsConnectionDetails.getRegion()).isEqualTo("eu-west-1");
-        assertThat(awsConnectionDetails.getAccessKey()).isEqualTo(moto.getAccessKey());
-        assertThat(awsConnectionDetails.getSecretKey()).isEqualTo(moto.getSecretKey());
-    }
+  @Test
+  void exposesMotoAwsConnectionDetails() {
+    assertThat(awsConnectionDetails.getEndpoint()).isEqualTo(moto.getEndpoint());
+    assertThat(awsConnectionDetails.getRegion()).isEqualTo("eu-west-1");
+    assertThat(awsConnectionDetails.getAccessKey()).isEqualTo(moto.getAccessKey());
+    assertThat(awsConnectionDetails.getSecretKey()).isEqualTo(moto.getSecretKey());
+  }
 
-    @Test
-    void autoConfiguresS3ClientWithPathStyleAccess() {
-        String bucketName = "spring-boot-moto-test-bucket";
-        s3Client.createBucket(b -> b.bucket(bucketName));
+  @Test
+  void autoConfiguresS3ClientWithPathStyleAccess() {
+    String bucketName = "spring-boot-moto-test-bucket";
+    s3Client.createBucket(b -> b.bucket(bucketName));
 
-        assertThat(s3Client.listBuckets().buckets()).anyMatch(b -> b.name().equals(bucketName));
-    }
+    assertThat(s3Client.listBuckets().buckets()).anyMatch(b -> b.name().equals(bucketName));
+  }
 
-    @Configuration
-    @EnableAutoConfiguration
-    static class TestConfig {
-    }
+  @Configuration
+  @EnableAutoConfiguration
+  static class TestConfig {}
 }
