@@ -1,5 +1,5 @@
 [versions]
-spotless = "7.0.2"
+spotless = "8.10.1"
 spotbugs = "6.1.7"
 testcontainers = "1.21.3"
 junit = "6.1.3"
