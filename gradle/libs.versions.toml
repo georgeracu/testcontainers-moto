@@ -1,6 +1,6 @@
 [versions]
 spotless = "7.0.2"
-spotbugs = "6.1.7"
+spotbugs = "6.5.11"
 testcontainers = "1.21.3"
 junit = "6.1.3"
 assertj = "3.27.7"
