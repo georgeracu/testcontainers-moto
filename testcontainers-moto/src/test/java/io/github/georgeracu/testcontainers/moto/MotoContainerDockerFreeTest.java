@@ -49,6 +49,41 @@ class MotoContainerDockerFreeTest {
   }
 
   @Test
+  void configuresS3EnvVarsFromConfig() {
+    S3Config config =
+        S3Config.builder()
+            .customEndpoints("http://localhost:8080")
+            .defaultMaxKeys(10)
+            .allowCrossaccountAccess(false)
+            .ignoreSubdomainBucketname(true)
+            .uploadPartMinSize(1024)
+            .build();
+
+    MotoContainer container = new MotoContainer("motoserver/moto:5.2.3").withS3Config(config);
+
+    assertThat(container.getEnvMap())
+        .containsEntry("MOTO_S3_CUSTOM_ENDPOINTS", "http://localhost:8080")
+        .containsEntry("MOTO_S3_DEFAULT_MAX_KEYS", "10")
+        .containsEntry("MOTO_S3_ALLOW_CROSSACCOUNT_ACCESS", "false")
+        .containsEntry("S3_IGNORE_SUBDOMAIN_BUCKETNAME", "true")
+        .containsEntry("S3_UPLOAD_PART_MIN_SIZE", "1024");
+  }
+
+  @Test
+  void onlyConfiguresSetS3EnvVars() {
+    S3Config config = S3Config.builder().defaultMaxKeys(50).build();
+
+    MotoContainer container = new MotoContainer("motoserver/moto:5.2.3").withS3Config(config);
+
+    assertThat(container.getEnvMap())
+        .containsEntry("MOTO_S3_DEFAULT_MAX_KEYS", "50")
+        .doesNotContainKey("MOTO_S3_CUSTOM_ENDPOINTS")
+        .doesNotContainKey("MOTO_S3_ALLOW_CROSSACCOUNT_ACCESS")
+        .doesNotContainKey("S3_IGNORE_SUBDOMAIN_BUCKETNAME")
+        .doesNotContainKey("S3_UPLOAD_PART_MIN_SIZE");
+  }
+
+  @Test
   void non200ResponseIncludesUriAndStatusCode() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
     server.createContext(
