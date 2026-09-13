@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.jupiter.api.Test;
@@ -161,7 +162,7 @@ class MotoContainerDockerFreeTest {
         "/",
         exchange -> {
           requests.add(exchange.getRequestMethod() + " " + exchange.getRequestURI());
-          bodies.add(new String(exchange.getRequestBody().readAllBytes()));
+          bodies.add(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
           exchange.sendResponseHeaders(200, -1);
           exchange.close();
         });
@@ -195,11 +196,20 @@ class MotoContainerDockerFreeTest {
   }
 
   private MotoContainer containerAt(URI endpoint) {
-    return new MotoContainer("motoserver/moto:5.2.3") {
-      @Override
-      public URI getEndpoint() {
-        return endpoint;
-      }
-    };
+    return new EndpointOverrideContainer("motoserver/moto:5.2.3", endpoint);
+  }
+
+  private static final class EndpointOverrideContainer extends MotoContainer {
+    private final URI endpoint;
+
+    EndpointOverrideContainer(String dockerImageName, URI endpoint) {
+      super(dockerImageName);
+      this.endpoint = endpoint;
+    }
+
+    @Override
+    public URI getEndpoint() {
+      return endpoint;
+    }
   }
 }

@@ -98,7 +98,8 @@ public final class S3Config {
     /**
      * Sets {@code MOTO_S3_ALLOW_CROSSACCOUNT_ACCESS}.
      *
-     * @param allowCrossaccountAccess allow or deny cross-account bucket access (Moto defaults to true)
+     * @param allowCrossaccountAccess allow or deny cross-account bucket access (Moto defaults to
+     *     true)
      * @return this builder
      */
     public Builder allowCrossaccountAccess(boolean allowCrossaccountAccess) {
@@ -120,7 +121,8 @@ public final class S3Config {
     /**
      * Sets {@code S3_UPLOAD_PART_MIN_SIZE}.
      *
-     * @param uploadPartMinSize minimum multipart upload part size in bytes (Moto defaults to 5242880)
+     * @param uploadPartMinSize minimum multipart upload part size in bytes (Moto defaults to
+     *     5242880)
      * @return this builder
      */
     public Builder uploadPartMinSize(int uploadPartMinSize) {
