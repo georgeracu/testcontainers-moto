@@ -30,6 +30,7 @@ Two artifacts are published:
 - [Installation](#installation)
 - [`testcontainers-moto`](#testcontainers-moto-1)
   - [Basic usage](#basic-usage)
+  - [Configuring Moto's S3 environment](#configuring-motos-s3-environment)
   - [EC2 configuration](#ec2-configuration)
   - [Resetting state between tests](#resetting-state-between-tests)
   - [Deterministic IDs with `seed`](#deterministic-ids-with-seed)
@@ -160,6 +161,21 @@ JUnit-5-specific beyond the `@Testcontainers`/`@Container` annotations used abov
 `endpointOverride(...)` at, regardless of which service you're calling —
 `getAccessKey()`/`getSecretKey()` are fixed dummy credentials Moto accepts unconditionally,
 and `getRegion()` is the default region (`us-east-1`) Moto assumes.
+
+### Configuring Moto's S3 environment
+
+Moto configures certain S3 behaviors via environment variables. You can set these in a type-safe way using `S3Config`:
+
+```java
+@Container
+static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3")
+        .withS3Config(S3Config.builder()
+                .defaultMaxKeys(10)
+                .ignoreSubdomainBucketname(true)
+                .build());
+```
+
+`S3Config` exposes standard settings like `defaultMaxKeys`, `allowCrossaccountAccess`, and `uploadPartMinSize` without forcing you to look up the exact environment variable names or override Moto's own defaults for fields you don't configure.
 
 ### EC2 configuration
 

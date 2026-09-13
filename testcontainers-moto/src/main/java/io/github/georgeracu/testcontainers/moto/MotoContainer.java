@@ -113,6 +113,31 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   }
 
   /**
+   * Applies S3-specific configuration settings.
+   *
+   * @param config the configuration to apply
+   * @return this container instance for method chaining
+   */
+  public MotoContainer withS3Config(S3Config config) {
+    if (config.getCustomEndpoints() != null) {
+      withEnv("MOTO_S3_CUSTOM_ENDPOINTS", config.getCustomEndpoints());
+    }
+    if (config.getDefaultMaxKeys() != null) {
+      withEnv("MOTO_S3_DEFAULT_MAX_KEYS", config.getDefaultMaxKeys().toString());
+    }
+    if (config.getAllowCrossaccountAccess() != null) {
+      withEnv("MOTO_S3_ALLOW_CROSSACCOUNT_ACCESS", config.getAllowCrossaccountAccess().toString());
+    }
+    if (config.getIgnoreSubdomainBucketname() != null) {
+      withEnv("S3_IGNORE_SUBDOMAIN_BUCKETNAME", config.getIgnoreSubdomainBucketname().toString());
+    }
+    if (config.getUploadPartMinSize() != null) {
+      withEnv("S3_UPLOAD_PART_MIN_SIZE", config.getUploadPartMinSize().toString());
+    }
+    return self();
+  }
+
+  /**
    * Returns Moto's backend state as raw JSON. {@code GET /moto-api/data.json}.
    *
    * <p>This endpoint is consumed by Moto's dashboard but is not documented alongside {@code
