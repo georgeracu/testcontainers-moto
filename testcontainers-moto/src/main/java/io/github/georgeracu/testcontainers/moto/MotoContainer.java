@@ -133,6 +133,22 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   }
 
   /**
+   * Configures IAM-specific Moto environment variables.
+   *
+   * @param config the IAM configuration
+   * @return this container instance
+   */
+  public MotoContainer withIamConfig(IamConfig config) {
+    if (config.getInitialNoAuthActionCount() != null) {
+      withEnv("INITIAL_NO_AUTH_ACTION_COUNT", config.getInitialNoAuthActionCount().toString());
+    }
+    if (config.getLoadManagedPolicies() != null) {
+      withEnv("MOTO_IAM_LOAD_MANAGED_POLICIES", config.getLoadManagedPolicies().toString());
+    }
+    return self();
+  }
+
+  /**
    * Applies Lambda-specific configuration settings.
    *
    * @param config the configuration to apply

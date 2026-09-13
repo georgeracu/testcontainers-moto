@@ -34,6 +34,7 @@ Two artifacts are published:
   - [EC2 configuration](#ec2-configuration)
   - [Lambda configuration](#lambda-configuration)
   - [Cognito IDP configuration](#cognito-idp-configuration)
+  - [IAM configuration](#iam-configuration)
   - [Resetting state between tests](#resetting-state-between-tests)
   - [Deterministic IDs with `seed`](#deterministic-ids-with-seed)
   - [Sharing one container across a test class](#sharing-one-container-across-a-test-class)
@@ -222,6 +223,21 @@ static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3")
                 .userPoolIdStrategy("HASH")
                 .userPoolClientIdStrategy("HASH")
                 .userPoolEnableTotp(true)
+                .build());
+```
+
+Only set fields that you explicitly want to override; unset fields default to Moto's own behavior.
+
+### IAM configuration
+
+Moto configures certain IAM behaviours via environment variables, such as managed policy loading. You can configure these using `withIamConfig(...)`:
+
+```java
+@Container
+static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3")
+        .withIamConfig(IamConfig.builder()
+                .initialNoAuthActionCount(3)
+                .loadManagedPolicies(true)
                 .build());
 ```
 

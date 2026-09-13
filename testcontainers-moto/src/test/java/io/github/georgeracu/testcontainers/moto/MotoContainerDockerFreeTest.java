@@ -244,6 +244,28 @@ class MotoContainerDockerFreeTest {
   }
 
   @Test
+  void appliesIamConfig() {
+    MotoContainer container =
+        new MotoContainer("motoserver/moto:5.2.3")
+            .withIamConfig(
+                IamConfig.builder().initialNoAuthActionCount(3).loadManagedPolicies(true).build());
+
+    assertThat(container.getEnvMap())
+        .containsEntry("INITIAL_NO_AUTH_ACTION_COUNT", "3")
+        .containsEntry("MOTO_IAM_LOAD_MANAGED_POLICIES", "true");
+  }
+
+  @Test
+  void onlyConfiguresSetIamEnvVars() {
+    MotoContainer container =
+        new MotoContainer("motoserver/moto:5.2.3").withIamConfig(IamConfig.builder().build());
+
+    assertThat(container.getEnvMap())
+        .doesNotContainKey("INITIAL_NO_AUTH_ACTION_COUNT")
+        .doesNotContainKey("MOTO_IAM_LOAD_MANAGED_POLICIES");
+  }
+
+  @Test
   void onlyConfiguresSetCognitoIdpEnvVars() {
     MotoContainer container =
         new MotoContainer("motoserver/moto:5.2.3")
