@@ -99,7 +99,7 @@ class MotoContainerTest {
   }
 
   @Test
-  void sendReportsNonSuccessfulMotoApiCall() throws Exception {
+  void sendReportsNonSuccessfulMotoApiCall() throws ReflectiveOperationException {
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(moto.getEndpoint().resolve("/moto-api/does-not-exist"))
