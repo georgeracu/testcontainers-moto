@@ -70,6 +70,30 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   }
 
   /**
+   * Configures EC2-specific Moto environment variables.
+   *
+   * @param config the EC2 configuration
+   * @return this container instance
+   */
+  public MotoContainer withEc2Config(Ec2Config config) {
+    if (config.getEnableInstanceTypeValidation() != null) {
+      withEnv(
+          "MOTO_EC2_ENABLE_INSTANCE_TYPE_VALIDATION",
+          config.getEnableInstanceTypeValidation().toString());
+    }
+    if (config.getEnableKeypairValidation() != null) {
+      withEnv("MOTO_ENABLE_KEYPAIR_VALIDATION", config.getEnableKeypairValidation().toString());
+    }
+    if (config.getEnableAmiValidation() != null) {
+      withEnv("MOTO_ENABLE_AMI_VALIDATION", config.getEnableAmiValidation().toString());
+    }
+    if (config.getLoadDefaultAmis() != null) {
+      withEnv("MOTO_EC2_LOAD_DEFAULT_AMIS", config.getLoadDefaultAmis().toString());
+    }
+    return self();
+  }
+
+  /**
    * Configures the AWS region exposed to service clients.
    *
    * @deprecated The {@code region} field is a JVM-side default hint, not a container attribute that
