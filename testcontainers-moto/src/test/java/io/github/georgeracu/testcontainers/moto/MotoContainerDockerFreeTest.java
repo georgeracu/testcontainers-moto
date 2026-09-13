@@ -202,14 +202,28 @@ class MotoContainerDockerFreeTest {
             .withEc2Config(
                 Ec2Config.builder()
                     .enableInstanceTypeValidation(true)
+                    .enableKeypairValidation(false)
+                    .enableAmiValidation(true)
                     .loadDefaultAmis(false)
                     .build());
 
     assertThat(container.getEnvMap())
         .containsEntry("MOTO_EC2_ENABLE_INSTANCE_TYPE_VALIDATION", "true")
-        .containsEntry("MOTO_EC2_LOAD_DEFAULT_AMIS", "false")
+        .containsEntry("MOTO_ENABLE_KEYPAIR_VALIDATION", "false")
+        .containsEntry("MOTO_ENABLE_AMI_VALIDATION", "true")
+        .containsEntry("MOTO_EC2_LOAD_DEFAULT_AMIS", "false");
+  }
+
+  @Test
+  void onlyConfiguresSetEc2EnvVars() {
+    MotoContainer container =
+        new MotoContainer("motoserver/moto:5.2.3").withEc2Config(Ec2Config.builder().build());
+
+    assertThat(container.getEnvMap())
+        .doesNotContainKey("MOTO_EC2_ENABLE_INSTANCE_TYPE_VALIDATION")
         .doesNotContainKey("MOTO_ENABLE_KEYPAIR_VALIDATION")
-        .doesNotContainKey("MOTO_ENABLE_AMI_VALIDATION");
+        .doesNotContainKey("MOTO_ENABLE_AMI_VALIDATION")
+        .doesNotContainKey("MOTO_EC2_LOAD_DEFAULT_AMIS");
   }
 
   private MotoContainer containerAt(URI endpoint) {
