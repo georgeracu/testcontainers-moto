@@ -227,6 +227,35 @@ class MotoContainerDockerFreeTest {
   }
 
   @Test
+  void appliesCognitoIdpConfig() {
+    MotoContainer container =
+        new MotoContainer("motoserver/moto:5.2.3")
+            .withCognitoIdpConfig(
+                CognitoIdpConfig.builder()
+                    .userPoolIdStrategy("HASH")
+                    .userPoolClientIdStrategy("UUID")
+                    .userPoolEnableTotp(true)
+                    .build());
+
+    assertThat(container.getEnvMap())
+        .containsEntry("MOTO_COGNITO_IDP_USER_POOL_ID_STRATEGY", "HASH")
+        .containsEntry("MOTO_COGNITO_IDP_USER_POOL_CLIENT_ID_STRATEGY", "UUID")
+        .containsEntry("MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP", "true");
+  }
+
+  @Test
+  void onlyConfiguresSetCognitoIdpEnvVars() {
+    MotoContainer container =
+        new MotoContainer("motoserver/moto:5.2.3")
+            .withCognitoIdpConfig(CognitoIdpConfig.builder().build());
+
+    assertThat(container.getEnvMap())
+        .doesNotContainKey("MOTO_COGNITO_IDP_USER_POOL_ID_STRATEGY")
+        .doesNotContainKey("MOTO_COGNITO_IDP_USER_POOL_CLIENT_ID_STRATEGY")
+        .doesNotContainKey("MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP");
+  }
+
+  @Test
   void appliesEc2Config() {
     MotoContainer container =
         new MotoContainer("motoserver/moto:5.2.3")

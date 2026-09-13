@@ -113,6 +113,26 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   }
 
   /**
+   * Configures Cognito IDP-specific Moto environment variables.
+   *
+   * @param config the Cognito IDP configuration
+   * @return this container instance
+   */
+  public MotoContainer withCognitoIdpConfig(CognitoIdpConfig config) {
+    if (config.getUserPoolIdStrategy() != null) {
+      withEnv("MOTO_COGNITO_IDP_USER_POOL_ID_STRATEGY", config.getUserPoolIdStrategy());
+    }
+    if (config.getUserPoolClientIdStrategy() != null) {
+      withEnv(
+          "MOTO_COGNITO_IDP_USER_POOL_CLIENT_ID_STRATEGY", config.getUserPoolClientIdStrategy());
+    }
+    if (config.getUserPoolEnableTotp() != null) {
+      withEnv("MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP", config.getUserPoolEnableTotp().toString());
+    }
+    return self();
+  }
+
+  /**
    * Applies Lambda-specific configuration settings.
    *
    * @param config the configuration to apply
