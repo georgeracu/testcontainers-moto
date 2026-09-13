@@ -31,6 +31,7 @@ Two artifacts are published:
 - [`testcontainers-moto`](#testcontainers-moto-1)
   - [Basic usage](#basic-usage)
   - [Configuring Moto's S3 environment](#configuring-motos-s3-environment)
+  - [EC2 configuration](#ec2-configuration)
   - [Resetting state between tests](#resetting-state-between-tests)
   - [Deterministic IDs with `seed`](#deterministic-ids-with-seed)
   - [Sharing one container across a test class](#sharing-one-container-across-a-test-class)
@@ -175,6 +176,23 @@ static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3")
 ```
 
 `S3Config` exposes standard settings like `defaultMaxKeys`, `allowCrossaccountAccess`, and `uploadPartMinSize` without forcing you to look up the exact environment variable names or override Moto's own defaults for fields you don't configure.
+
+### EC2 configuration
+
+Moto exposes environment variables to optionally validate instance types, key pairs, and AMIs against real/mocked catalogs, as well as whether to load default AMIs. You can configure these using `withEc2Config(...)`:
+
+```java
+@Container
+static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3")
+        .withEc2Config(Ec2Config.builder()
+                .enableInstanceTypeValidation(true)
+                .enableKeypairValidation(true)
+                .enableAmiValidation(true)
+                .loadDefaultAmis(false)
+                .build());
+```
+
+Only set fields that you explicitly want to override; unset fields default to Moto's own behavior.
 
 ### Resetting state between tests
 
