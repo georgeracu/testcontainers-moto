@@ -33,6 +33,7 @@ Two artifacts are published:
   - [Configuring Moto's S3 environment](#configuring-motos-s3-environment)
   - [EC2 configuration](#ec2-configuration)
   - [Lambda configuration](#lambda-configuration)
+  - [Cognito IDP configuration](#cognito-idp-configuration)
   - [Resetting state between tests](#resetting-state-between-tests)
   - [Deterministic IDs with `seed`](#deterministic-ids-with-seed)
   - [Sharing one container across a test class](#sharing-one-container-across-a-test-class)
@@ -205,6 +206,22 @@ static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3")
         .withLambdaConfig(LambdaConfig.builder()
                 .stubEcr(true)
                 .defaultContainerRegistry("registry.example.com")
+                .build());
+```
+
+Only set fields that you explicitly want to override; unset fields default to Moto's own behavior.
+
+### Cognito IDP configuration
+
+Moto configures certain Cognito IDP behaviours via environment variables, such as user pool ID strategies. You can configure these using `withCognitoIdpConfig(...)`:
+
+```java
+@Container
+static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3")
+        .withCognitoIdpConfig(CognitoIdpConfig.builder()
+                .userPoolIdStrategy("HASH")
+                .userPoolClientIdStrategy("HASH")
+                .userPoolEnableTotp(true)
                 .build());
 ```
 
