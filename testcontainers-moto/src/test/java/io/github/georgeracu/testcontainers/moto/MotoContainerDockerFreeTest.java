@@ -27,14 +27,14 @@ class MotoContainerDockerFreeTest {
 
   @Test
   void constructsSuccessfullyWithoutDockerDaemon() {
-    MotoContainer container = new MotoContainer("motoserver/moto:5.1.22");
+    MotoContainer container = new MotoContainer("motoserver/moto:5.2.3");
 
     assertThat(container).isNotNull();
   }
 
   @Test
   void returnsDefaultCredentialsAndRegion() {
-    MotoContainer container = new MotoContainer("motoserver/moto:5.1.22");
+    MotoContainer container = new MotoContainer("motoserver/moto:5.2.3");
 
     assertThat(container.getAccessKey()).isEqualTo("test");
     assertThat(container.getSecretKey()).isEqualTo("test");
@@ -43,7 +43,7 @@ class MotoContainerDockerFreeTest {
 
   @Test
   void configuresRegion() {
-    MotoContainer container = new MotoContainer("motoserver/moto:5.1.22").withRegion("eu-west-1");
+    MotoContainer container = new MotoContainer("motoserver/moto:5.2.3").withRegion("eu-west-1");
 
     assertThat(container.getRegion()).isEqualTo("eu-west-1");
   }
@@ -160,7 +160,7 @@ class MotoContainerDockerFreeTest {
   }
 
   private MotoContainer containerAt(URI endpoint) {
-    return new MotoContainer("motoserver/moto:5.1.22") {
+    return new MotoContainer("motoserver/moto:5.2.3") {
       @Override
       public URI getEndpoint() {
         return endpoint;

@@ -23,7 +23,7 @@ import org.testcontainers.utility.DockerImageName;
 public class MotoContainer extends GenericContainer<MotoContainer> {
 
   private static final DockerImageName DEFAULT_IMAGE =
-      DockerImageName.parse("motoserver/moto:5.1.22");
+      DockerImageName.parse("motoserver/moto:5.2.3");
   private static final int MOTO_PORT = 5000;
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
   private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
@@ -32,7 +32,7 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   private String region = "us-east-1";
 
   /**
-   * Creates a Moto container from a Docker image reference, e.g. {@code "motoserver/moto:5.1.22"}.
+   * Creates a Moto container from a Docker image reference, e.g. {@code "motoserver/moto:5.2.3"}.
    */
   public MotoContainer(String dockerImageName) {
     this(DockerImageName.parse(dockerImageName));

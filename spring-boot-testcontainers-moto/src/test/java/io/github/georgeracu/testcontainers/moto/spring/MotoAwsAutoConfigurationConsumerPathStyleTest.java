@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 class MotoAwsAutoConfigurationConsumerPathStyleTest {
 
   @Container @ServiceConnection
-  static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+  static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3");
 
   @Autowired private S3Client s3Client;
 
