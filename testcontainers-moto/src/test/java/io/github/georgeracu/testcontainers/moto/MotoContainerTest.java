@@ -22,7 +22,7 @@ class MotoContainerTest {
 
   @Container
   static final MotoContainer moto =
-      new MotoContainer("motoserver/moto:5.1.22").withRegion("eu-west-1");
+      new MotoContainer("motoserver/moto:5.2.3").withRegion("eu-west-1");
 
   private static IamClient iam() {
     return IamClient.builder()
