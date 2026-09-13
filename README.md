@@ -66,7 +66,7 @@ testImplementation("io.github.georgeracu:testcontainers-moto:0.5.0")
 class QuickStartTest {
 
     @Container
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3");
 
     @Test
     void talksToMoto() {
@@ -132,7 +132,7 @@ classpath; `spring-boot-testcontainers-moto` does not bundle or pin it.
 class S3Test {
 
     @Container
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3");
 
     @Test
     void createsBucket() {
@@ -171,7 +171,7 @@ container can safely serve a whole test class:
 class S3Test {
 
     @Container
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3");
 
     @BeforeEach
     void resetMoto() {
@@ -208,7 +208,7 @@ shared base class:
 ```java
 abstract class MotoTestBase {
     @Container
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3");
 }
 
 class S3Test extends MotoTestBase { /* ... */ }
@@ -227,7 +227,7 @@ extension callback:
 
 ```java
 abstract class MotoTestBase {
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3");
 
     static {
         moto.start();
@@ -244,10 +244,10 @@ share a `MotoContainer` or serialize them with a `@ResourceLock`/`@Execution(Exe
 
 ### Pinning an image tag
 
-Always pin an explicit Moto image tag (`motoserver/moto:5.1.22`, not `motoserver/moto:latest`)
+Always pin an explicit Moto image tag (`motoserver/moto:5.2.3`, not `motoserver/moto:latest`)
 so a Moto release upgrade can't silently change behaviour under your tests. Check
 [Moto's Docker Hub tags](https://hub.docker.com/r/motoserver/moto/tags) for available
-versions; this project's own tests are pinned to `5.1.22`.
+versions; this project's own tests are pinned to `5.2.3`.
 
 ## `spring-boot-testcontainers-moto`
 
@@ -260,7 +260,7 @@ class S3IntegrationTest {
 
     @Container
     @ServiceConnection
-    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.1.22");
+    static final MotoContainer moto = new MotoContainer("motoserver/moto:5.2.3");
 
     @Autowired
     private S3Client s3Client;
@@ -352,7 +352,7 @@ Versions this project is built and tested against (see
 | AWS SDK for Java v2 | 2.32.25 |
 | Spring Boot | 3.5.5 |
 | Spring Cloud AWS | 3.4.0 |
-| Moto (tested image tag) | `motoserver/moto:5.1.22` |
+| Moto (tested image tag) | `motoserver/moto:5.2.3` |
 
 ## Building locally
 
