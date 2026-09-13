@@ -113,6 +113,28 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   }
 
   /**
+   * Applies Lambda-specific configuration settings.
+   *
+   * @param config the configuration to apply
+   * @return this container instance
+   */
+  public MotoContainer withLambdaConfig(LambdaConfig config) {
+    if (config.getDataDir() != null) {
+      withEnv("MOTO_LAMBDA_DATA_DIR", config.getDataDir());
+    }
+    if (config.getDockerImage() != null) {
+      withEnv("MOTO_DOCKER_LAMBDA_IMAGE", config.getDockerImage());
+    }
+    if (config.getStubEcr() != null) {
+      withEnv("MOTO_LAMBDA_STUB_ECR", config.getStubEcr().toString());
+    }
+    if (config.getDefaultContainerRegistry() != null) {
+      withEnv("DEFAULT_CONTAINER_REGISTRY", config.getDefaultContainerRegistry());
+    }
+    return self();
+  }
+
+  /**
    * Applies S3-specific configuration settings.
    *
    * @param config the configuration to apply

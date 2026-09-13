@@ -196,6 +196,37 @@ class MotoContainerDockerFreeTest {
   }
 
   @Test
+  void appliesLambdaConfig() {
+    MotoContainer container =
+        new MotoContainer("motoserver/moto:5.2.3")
+            .withLambdaConfig(
+                LambdaConfig.builder()
+                    .dataDir("/tmp/moto-lambda")
+                    .dockerImage("my-custom-lambda:latest")
+                    .stubEcr(true)
+                    .defaultContainerRegistry("registry.example.com")
+                    .build());
+
+    assertThat(container.getEnvMap())
+        .containsEntry("MOTO_LAMBDA_DATA_DIR", "/tmp/moto-lambda")
+        .containsEntry("MOTO_DOCKER_LAMBDA_IMAGE", "my-custom-lambda:latest")
+        .containsEntry("MOTO_LAMBDA_STUB_ECR", "true")
+        .containsEntry("DEFAULT_CONTAINER_REGISTRY", "registry.example.com");
+  }
+
+  @Test
+  void onlyConfiguresSetLambdaEnvVars() {
+    MotoContainer container =
+        new MotoContainer("motoserver/moto:5.2.3").withLambdaConfig(LambdaConfig.builder().build());
+
+    assertThat(container.getEnvMap())
+        .doesNotContainKey("MOTO_LAMBDA_DATA_DIR")
+        .doesNotContainKey("MOTO_DOCKER_LAMBDA_IMAGE")
+        .doesNotContainKey("MOTO_LAMBDA_STUB_ECR")
+        .doesNotContainKey("DEFAULT_CONTAINER_REGISTRY");
+  }
+
+  @Test
   void appliesEc2Config() {
     MotoContainer container =
         new MotoContainer("motoserver/moto:5.2.3")
