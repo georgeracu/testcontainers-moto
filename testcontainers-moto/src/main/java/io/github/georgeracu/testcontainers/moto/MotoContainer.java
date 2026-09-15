@@ -258,7 +258,11 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
    */
   public void setTransition(String modelName, Transition transition) {
     String json =
-        "{\"model_name\":\"" + modelName + "\",\"transition\":" + transition.toJson() + "}";
+        "{\"model_name\":\""
+            + escapeJson(modelName)
+            + "\",\"transition\":"
+            + transition.toJson()
+            + "}";
     send(
         HttpRequest.newBuilder()
             .uri(getEndpoint().resolve("/moto-api/state-manager/set-transition"))
@@ -274,7 +278,7 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
    * @param modelName the model name, e.g., "dax::cluster"
    */
   public void unsetTransition(String modelName) {
-    String json = "{\"model_name\":\"" + modelName + "\"}";
+    String json = "{\"model_name\":\"" + escapeJson(modelName) + "\"}";
     send(
         HttpRequest.newBuilder()
             .uri(getEndpoint().resolve("/moto-api/state-manager/unset-transition"))
@@ -282,6 +286,19 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(json))
             .build());
+  }
+
+  private static String escapeJson(String str) {
+    if (str == null) {
+      return null;
+    }
+    return str.replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\b", "\\b")
+        .replace("\f", "\\f")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t");
   }
 
   private String send(HttpRequest request) {

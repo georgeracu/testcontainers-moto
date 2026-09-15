@@ -27,6 +27,35 @@ class MotoContainerDockerFreeTest {
   }
 
   @Test
+  void transitionsEscapeModelNameQuotesAndSlashes() throws IOException {
+    List<String> bodies = new CopyOnWriteArrayList<>();
+    HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+    server.createContext(
+        "/",
+        exchange -> {
+          bodies.add(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+          exchange.sendResponseHeaders(200, -1);
+          exchange.close();
+        });
+    server.start();
+
+    try {
+      URI endpoint = URI.create("http://127.0.0.1:" + server.getAddress().getPort());
+      MotoContainer container = containerAt(endpoint);
+
+      container.setTransition("dax::\"cluster\\test", Transition.immediate());
+      container.unsetTransition("dax::\"cluster\\test");
+
+      assertThat(bodies)
+          .containsExactly(
+              "{\"model_name\":\"dax::\\\"cluster\\\\test\",\"transition\":{\"progression\":\"immediate\"}}",
+              "{\"model_name\":\"dax::\\\"cluster\\\\test\"}");
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
   void constructsSuccessfullyWithoutDockerDaemon() {
     MotoContainer container = new MotoContainer("motoserver/moto:5.2.3");
 
