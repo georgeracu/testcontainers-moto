@@ -43,13 +43,15 @@ class MotoContainerDockerFreeTest {
       URI endpoint = URI.create("http://127.0.0.1:" + server.getAddress().getPort());
       MotoContainer container = containerAt(endpoint);
 
-      container.setTransition("dax::\"cluster\\test", Transition.immediate());
-      container.unsetTransition("dax::\"cluster\\test");
+      container.setTransition("dax::\"cluster\\test\b\f\n\r\t", Transition.immediate());
+      container.unsetTransition("dax::\"cluster\\test\b\f\n\r\t");
+      container.unsetTransition(null);
 
       assertThat(bodies)
           .containsExactly(
-              "{\"model_name\":\"dax::\\\"cluster\\\\test\",\"transition\":{\"progression\":\"immediate\"}}",
-              "{\"model_name\":\"dax::\\\"cluster\\\\test\"}");
+              "{\"model_name\":\"dax::\\\"cluster\\\\test\\b\\f\\n\\r\\t\",\"transition\":{\"progression\":\"immediate\"}}",
+              "{\"model_name\":\"dax::\\\"cluster\\\\test\\b\\f\\n\\r\\t\"}",
+              "{\"model_name\":\"null\"}");
     } finally {
       server.stop(0);
     }
