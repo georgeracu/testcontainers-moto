@@ -120,4 +120,24 @@ class MotoContainerTest {
     moto.setTransition("dax::cluster", Transition.time(java.time.Duration.ofSeconds(5)));
     moto.unsetTransition("dax::cluster");
   }
+
+  @Test
+  void getEndpointWithoutCacheFallback() {
+    MotoContainer mockMoto =
+        new MotoContainer("motoserver/moto:5.2.3") {
+          @Override
+          public String getHost() {
+            return "localhost";
+          }
+
+          @Override
+          public Integer getMappedPort(int originalPort) {
+            return 50000;
+          }
+        };
+
+    // Simulate getting the endpoint before the container is fully started / containerIsStarted is
+    // called.
+    assertThat(mockMoto.getEndpoint().toString()).isEqualTo("http://localhost:50000");
+  }
 }
