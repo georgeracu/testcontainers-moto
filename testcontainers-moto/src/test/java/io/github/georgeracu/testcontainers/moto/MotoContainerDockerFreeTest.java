@@ -109,6 +109,37 @@ class MotoContainerDockerFreeTest {
   }
 
   @Test
+  void transitionNamesAreEscaped() throws IOException {
+    List<String> bodies = new CopyOnWriteArrayList<>();
+    HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+    server.createContext(
+        "/",
+        exchange -> {
+          bodies.add(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+          exchange.sendResponseHeaders(200, -1);
+          exchange.close();
+        });
+    server.start();
+
+    try {
+      URI endpoint = URI.create("http://127.0.0.1:" + server.getAddress().getPort());
+      MotoContainer container = containerAt(endpoint);
+
+      container.setTransition("hacked\", \"other\": 123", Transition.immediate());
+      container.unsetTransition("name\nwith\tchars");
+      container.setTransition(null, Transition.immediate());
+
+      assertThat(bodies)
+          .containsExactly(
+              "{\"model_name\":\"hacked\\\", \\\"other\\\": 123\",\"transition\":{\"progression\":\"immediate\"}}",
+              "{\"model_name\":\"name\\nwith\\tchars\"}",
+              "{\"model_name\":\"\",\"transition\":{\"progression\":\"immediate\"}}");
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
   void ioExceptionIsWrappedWithOriginalCause() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
     server.createContext("/moto-api/reset", exchange -> exchange.close());

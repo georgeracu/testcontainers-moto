@@ -250,6 +250,46 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
             .build());
   }
 
+  private String escapeJson(String input) {
+    if (input == null) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder(input.length() + 16);
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      switch (c) {
+        case '"':
+          sb.append("\\\"");
+          break;
+        case '\\':
+          sb.append("\\\\");
+          break;
+        case '\b':
+          sb.append("\\b");
+          break;
+        case '\f':
+          sb.append("\\f");
+          break;
+        case '\n':
+          sb.append("\\n");
+          break;
+        case '\r':
+          sb.append("\\r");
+          break;
+        case '\t':
+          sb.append("\\t");
+          break;
+        default:
+          if (c < 0x20) {
+            sb.append(String.format("\\u%04x", (int) c));
+          } else {
+            sb.append(c);
+          }
+      }
+    }
+    return sb.toString();
+  }
+
   /**
    * Sets a state transition progression for a specific model.
    *
@@ -258,7 +298,11 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
    */
   public void setTransition(String modelName, Transition transition) {
     String json =
-        "{\"model_name\":\"" + modelName + "\",\"transition\":" + transition.toJson() + "}";
+        "{\"model_name\":\""
+            + escapeJson(modelName)
+            + "\",\"transition\":"
+            + transition.toJson()
+            + "}";
     send(
         HttpRequest.newBuilder()
             .uri(getEndpoint().resolve("/moto-api/state-manager/set-transition"))
@@ -274,7 +318,7 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
    * @param modelName the model name, e.g., "dax::cluster"
    */
   public void unsetTransition(String modelName) {
-    String json = "{\"model_name\":\"" + modelName + "\"}";
+    String json = "{\"model_name\":\"" + escapeJson(modelName) + "\"}";
     send(
         HttpRequest.newBuilder()
             .uri(getEndpoint().resolve("/moto-api/state-manager/unset-transition"))
