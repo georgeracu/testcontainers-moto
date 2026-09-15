@@ -10,6 +10,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -122,6 +123,50 @@ class MotoContainerDockerFreeTest {
           .isInstanceOf(IllegalStateException.class)
           .hasMessageContaining(endpoint.resolve("/moto-api/reset").toString())
           .hasCauseInstanceOf(IOException.class);
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void interruptedExceptionIsWrappedAndThreadIsInterrupted() throws IOException {
+    CountDownLatch serverReached = new CountDownLatch(1);
+    HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+    server.createContext(
+        "/moto-api/reset",
+        exchange -> {
+          serverReached.countDown();
+          try {
+            Thread.sleep(10000); // Wait to be interrupted
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+          exchange.close();
+        });
+    server.start();
+
+    try {
+      URI endpoint = URI.create("http://127.0.0.1:" + server.getAddress().getPort());
+      MotoContainer container = containerAt(endpoint);
+
+      Thread testThread = Thread.currentThread();
+      new Thread(
+              () -> {
+                try {
+                  serverReached.await();
+                  testThread.interrupt();
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                }
+              })
+          .start();
+
+      assertThatThrownBy(container::reset)
+          .isInstanceOf(IllegalStateException.class)
+          .hasMessageContaining("was interrupted")
+          .hasCauseInstanceOf(InterruptedException.class);
+
+      assertThat(Thread.interrupted()).isTrue(); // Verifies and clears the interrupt flag
     } finally {
       server.stop(0);
     }
