@@ -128,12 +128,14 @@ class MotoContainerDockerFreeTest {
       container.setTransition("hacked\", \"other\": 123", Transition.immediate());
       container.unsetTransition("name\nwith\tchars");
       container.setTransition(null, Transition.immediate());
+      container.setTransition("escape \\ \b \f \r \u0001", Transition.immediate());
 
       assertThat(bodies)
           .containsExactly(
               "{\"model_name\":\"hacked\\\", \\\"other\\\": 123\",\"transition\":{\"progression\":\"immediate\"}}",
               "{\"model_name\":\"name\\nwith\\tchars\"}",
-              "{\"model_name\":\"\",\"transition\":{\"progression\":\"immediate\"}}");
+              "{\"model_name\":\"\",\"transition\":{\"progression\":\"immediate\"}}",
+              "{\"model_name\":\"escape \\\\ \\b \\f \\r \\u0001\",\"transition\":{\"progression\":\"immediate\"}}");
     } finally {
       server.stop(0);
     }
