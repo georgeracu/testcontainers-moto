@@ -30,8 +30,6 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   private static final HttpClient HTTP_CLIENT =
       HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
   private String region = "us-east-1";
-  private String cachedHost;
-  private Integer cachedPort;
   private URI cachedEndpoint;
 
   /**
@@ -52,20 +50,19 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
     waitingFor(Wait.forHttp("/moto-api/").forStatusCode(200));
   }
 
+  @Override
+  protected void containerIsStarted(
+      com.github.dockerjava.api.command.InspectContainerResponse containerInfo, boolean reused) {
+    super.containerIsStarted(containerInfo, reused);
+    cachedEndpoint = URI.create("http://" + getHost() + ":" + getMappedPort(MOTO_PORT));
+  }
+
   /** The base endpoint every AWS service client should be pointed at. */
   public URI getEndpoint() {
-    String host = getHost();
-    Integer port = getMappedPort(MOTO_PORT);
-
-    if (cachedEndpoint == null
-        || !java.util.Objects.equals(cachedHost, host)
-        || !java.util.Objects.equals(cachedPort, port)) {
-      cachedEndpoint = URI.create("http://" + host + ":" + port);
-      cachedHost = host;
-      cachedPort = port;
+    if (cachedEndpoint != null) {
+      return cachedEndpoint;
     }
-
-    return cachedEndpoint;
+    return URI.create("http://" + getHost() + ":" + getMappedPort(MOTO_PORT));
   }
 
   /** Moto's web dashboard. */
