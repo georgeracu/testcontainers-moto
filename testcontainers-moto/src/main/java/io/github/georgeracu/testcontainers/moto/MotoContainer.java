@@ -30,6 +30,9 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
   private static final HttpClient HTTP_CLIENT =
       HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
   private String region = "us-east-1";
+  private String cachedHost;
+  private Integer cachedPort;
+  private URI cachedEndpoint;
 
   /**
    * Creates a Moto container from a Docker image reference, e.g. {@code "motoserver/moto:5.2.3"}.
@@ -51,7 +54,18 @@ public class MotoContainer extends GenericContainer<MotoContainer> {
 
   /** The base endpoint every AWS service client should be pointed at. */
   public URI getEndpoint() {
-    return URI.create("http://" + getHost() + ":" + getMappedPort(MOTO_PORT));
+    String host = getHost();
+    Integer port = getMappedPort(MOTO_PORT);
+
+    if (cachedEndpoint == null
+        || !java.util.Objects.equals(cachedHost, host)
+        || !java.util.Objects.equals(cachedPort, port)) {
+      cachedEndpoint = URI.create("http://" + host + ":" + port);
+      cachedHost = host;
+      cachedPort = port;
+    }
+
+    return cachedEndpoint;
   }
 
   /** Moto's web dashboard. */
